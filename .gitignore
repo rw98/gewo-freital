@@ -1,0 +1,40 @@
+# Dot files (except .gitignore)
+.*
+!.gitignore
+
+# Environment files
+.env
+.env.*
+
+# Dependencies
+/node_modules
+/vendor
+
+# Build files
+/public/build
+/public/hot
+/public/storage
+
+# Storage (keep directory structure)
+/storage/*
+!/storage/.gitignore
+
+# Cache
+/.phpunit.cache
+.phpunit.result.cache
+
+# Logs
+npm-debug.log
+yarn-error.log
+
+# IDE / Editor directories
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+
+# Other
+Homestead.json
+Homestead.yaml
+/auth.json
