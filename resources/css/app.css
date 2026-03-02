@@ -1,0 +1,136 @@
+@import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * GEWO Freital Theme
+ * Brand colors extracted from gewo-freital.de logo
+ * - Primary: GEWO Blue (#00a3d9) - cyan/turquoise blue
+ * - Accent: GEWO Red (#c8102e) - warm red
+ * - Base: GEWO Grey (#4a4a4a) - neutral grey for text
+ * - Light mode only
+ */
+
+@theme {
+    --font-sans: 'Inter', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* GEWO Freital Brand Colors - Blue (Primary) */
+    /* Adjusted for WCAG AA contrast compliance */
+    --color-gewo-blue-50: #e6f7fc;
+    --color-gewo-blue-100: #cceff9;
+    --color-gewo-blue-200: #99dff3;
+    --color-gewo-blue-300: #66cfed;
+    --color-gewo-blue-400: #33bfe7;
+    --color-gewo-blue-500: #00a3d9;
+    --color-gewo-blue-600: #0082ae;
+    --color-gewo-blue-700: #006d92;
+    --color-gewo-blue-800: #005876;
+    --color-gewo-blue-900: #00415a;
+    --color-gewo-blue-950: #002130;
+
+    /* GEWO Freital Brand Colors - Red (Accent) */
+    --color-gewo-red-50: #fef2f3;
+    --color-gewo-red-100: #fde3e6;
+    --color-gewo-red-200: #fcccd2;
+    --color-gewo-red-300: #f9a8b2;
+    --color-gewo-red-400: #f4758a;
+    --color-gewo-red-500: #e94560;
+    --color-gewo-red-600: #c8102e;
+    --color-gewo-red-700: #a80d26;
+    --color-gewo-red-800: #8c0f24;
+    --color-gewo-red-900: #761124;
+    --color-gewo-red-950: #42050f;
+
+    /* GEWO Freital Brand Colors - Grey (Base) */
+    --color-gewo-grey-50: #f8f8f8;
+    --color-gewo-grey-100: #f0f0f0;
+    --color-gewo-grey-200: #e4e4e4;
+    --color-gewo-grey-300: #d1d1d1;
+    --color-gewo-grey-400: #b4b4b4;
+    --color-gewo-grey-500: #9a9a9a;
+    --color-gewo-grey-600: #818181;
+    --color-gewo-grey-700: #6a6a6a;
+    --color-gewo-grey-800: #4a4a4a;
+    --color-gewo-grey-900: #3d3d3d;
+    --color-gewo-grey-950: #262626;
+
+    /* Re-map zinc to GEWO grey for Flux UI compatibility */
+    --color-zinc-50: var(--color-gewo-grey-50);
+    --color-zinc-100: var(--color-gewo-grey-100);
+    --color-zinc-200: var(--color-gewo-grey-200);
+    --color-zinc-300: var(--color-gewo-grey-300);
+    --color-zinc-400: var(--color-gewo-grey-400);
+    --color-zinc-500: var(--color-gewo-grey-500);
+    --color-zinc-600: var(--color-gewo-grey-600);
+    --color-zinc-700: var(--color-gewo-grey-700);
+    --color-zinc-800: var(--color-gewo-grey-800);
+    --color-zinc-900: var(--color-gewo-grey-900);
+    --color-zinc-950: var(--color-gewo-grey-950);
+
+    /* Flux UI Accent Colors - GEWO Blue as primary accent */
+    /* Using darker shades for WCAG AA compliance */
+    --color-accent: var(--color-gewo-blue-700);
+    --color-accent-content: var(--color-gewo-blue-800);
+    --color-accent-foreground: var(--color-white);
+}
+
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gewo-grey-200, currentColor);
+    }
+
+    /*
+     * Barrier-Free Font Scaling
+     * Apply data-font-size attribute to <html> element
+     * Options: "small" | "normal" | "large"
+     */
+    html {
+        font-size: 16px;
+    }
+
+    html[data-font-size="small"] {
+        font-size: 14px;
+    }
+
+    html[data-font-size="normal"] {
+        font-size: 16px;
+    }
+
+    html[data-font-size="large"] {
+        font-size: 18px;
+    }
+
+    /* Focus styles for accessibility */
+    :focus-visible {
+        outline: 2px solid var(--color-gewo-red-600);
+        outline-offset: 2px;
+    }
+}
+
+[data-flux-field]:not(ui-radio, ui-checkbox) {
+    @apply grid gap-2;
+}
+
+[data-flux-label] {
+    @apply  !mb-0 !leading-tight;
+}
+
+input:focus[data-flux-control],
+textarea:focus[data-flux-control],
+select:focus[data-flux-control] {
+    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+}
+
+/* \[:where(&)\]:size-4 {
+    @apply size-4;
+} */
