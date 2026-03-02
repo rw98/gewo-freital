@@ -41,14 +41,9 @@
                                 {{ __('pages.layout.auth.dashboard') }}
                             </flux:button>
                         @else
-                            <flux:button href="{{ route('login') }}" variant="ghost" size="sm">
+                            <flux:button href="{{ route('login') }}" variant="primary" size="sm">
                                 {{ __('pages.layout.auth.login') }}
                             </flux:button>
-                            @if (Route::has('register'))
-                                <flux:button href="{{ route('register') }}" variant="primary" size="sm">
-                                    {{ __('pages.layout.auth.register') }}
-                                </flux:button>
-                            @endif
                         @endauth
                     </div>
                 @endif

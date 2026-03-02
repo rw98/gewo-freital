@@ -3,8 +3,7 @@
 use Livewire\Attributes\Session;
 use Livewire\Component;
 
-new class extends Component
-{
+new class extends Component {
     #[Session]
     public string $fontSize = 'normal';
 
@@ -25,10 +24,9 @@ new class extends Component
         wire:model.live="fontSize"
         variant="segmented"
         size="sm"
-        label="Schriftgröße"
     >
-        <flux:radio value="small" label="Klein" />
-        <flux:radio value="normal" label="Normal" />
-        <flux:radio value="large" label="Groß" />
+        <flux:radio value="small" icon="a-arrow-down"/>
+        <flux:radio value="normal" icon="a-large-small"/>
+        <flux:radio value="large" icon="a-arrow-up"/>
     </flux:radio.group>
 </div>

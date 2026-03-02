@@ -1,6 +1,103 @@
 <?php
 
 return [
+    'auth' => [
+        'login' => [
+            'title' => 'Anmelden',
+            'heading' => 'Willkommen zurück',
+            'description' => 'Geben Sie Ihre Zugangsdaten ein, um sich anzumelden',
+            'email' => 'E-Mail-Adresse',
+            'email_placeholder' => 'ihre@email.de',
+            'password' => 'Passwort',
+            'password_placeholder' => 'Passwort eingeben',
+            'forgot_password' => 'Passwort vergessen?',
+            'remember_me' => '30 Tage angemeldet bleiben',
+            'submit' => 'Anmelden',
+            'no_account' => 'Noch kein Konto?',
+            'sign_up' => 'Kostenlos registrieren',
+            'security_note' => 'Sichere Anmeldung durch Enterprise-Verschlüsselung geschützt',
+        ],
+
+        'register' => [
+            'title' => 'Registrieren',
+            'heading' => 'Konto erstellen',
+            'description' => 'Registrieren Sie sich, um Ihre Mietobjekte zu verwalten',
+            'name' => 'Vollständiger Name',
+            'name_placeholder' => 'Ihren Namen eingeben',
+            'email' => 'E-Mail-Adresse',
+            'email_placeholder' => 'ihre@email.de',
+            'password' => 'Passwort',
+            'password_placeholder' => 'Sicheres Passwort erstellen',
+            'password_confirm' => 'Passwort bestätigen',
+            'password_confirm_placeholder' => 'Passwort wiederholen',
+            'submit' => 'Konto erstellen',
+            'has_account' => 'Bereits ein Konto?',
+            'sign_in' => 'Anmelden',
+            'terms_note' => 'Mit der Registrierung akzeptieren Sie unsere Nutzungsbedingungen und Datenschutzrichtlinie',
+        ],
+
+        'forgot_password' => [
+            'title' => 'Passwort vergessen',
+            'heading' => 'Passwort vergessen?',
+            'description' => 'Kein Problem, wir senden Ihnen eine Anleitung zum Zurücksetzen.',
+            'email' => 'E-Mail-Adresse',
+            'email_placeholder' => 'ihre@email.de',
+            'submit' => 'Link senden',
+            'back_to_login' => 'Zurück zur Anmeldung',
+        ],
+
+        'reset_password' => [
+            'title' => 'Passwort zurücksetzen',
+            'heading' => 'Neues Passwort festlegen',
+            'description' => 'Ihr neues Passwort muss sich von zuvor verwendeten Passwörtern unterscheiden.',
+            'email' => 'E-Mail-Adresse',
+            'password' => 'Neues Passwort',
+            'password_placeholder' => 'Neues Passwort eingeben',
+            'password_confirm' => 'Neues Passwort bestätigen',
+            'password_confirm_placeholder' => 'Neues Passwort wiederholen',
+            'submit' => 'Passwort zurücksetzen',
+            'back_to_login' => 'Zurück zur Anmeldung',
+        ],
+
+        'verify_email' => [
+            'title' => 'E-Mail-Verifizierung',
+            'heading' => 'E-Mail prüfen',
+            'description' => 'Wir haben einen Verifizierungslink an Ihre E-Mail-Adresse gesendet. Bitte klicken Sie auf den Link, um Ihr Konto zu bestätigen.',
+            'resent' => 'Ein neuer Verifizierungslink wurde an Ihre E-Mail-Adresse gesendet.',
+            'resend' => 'Verifizierungs-E-Mail erneut senden',
+            'logout' => 'Abmelden',
+            'help_note' => 'Keine E-Mail erhalten? Prüfen Sie Ihren Spam-Ordner oder senden Sie die E-Mail erneut.',
+        ],
+
+        'confirm_password' => [
+            'title' => 'Passwort bestätigen',
+            'heading' => 'Passwort bestätigen',
+            'description' => 'Dies ist ein geschützter Bereich. Bitte bestätigen Sie Ihr Passwort, um fortzufahren.',
+            'password' => 'Passwort',
+            'password_placeholder' => 'Ihr Passwort eingeben',
+            'submit' => 'Bestätigen',
+        ],
+
+        'two_factor' => [
+            'title' => 'Zwei-Faktor-Authentifizierung',
+            'code_heading' => 'Authentifizierungscode',
+            'code_description' => 'Geben Sie den 6-stelligen Code aus Ihrer Authenticator-App ein.',
+            'recovery_heading' => 'Wiederherstellungscode',
+            'recovery_description' => 'Geben Sie einen Ihrer Notfall-Wiederherstellungscodes ein.',
+            'recovery_label' => 'Wiederherstellungscode',
+            'submit' => 'Verifizieren',
+            'use_recovery' => 'Stattdessen Wiederherstellungscode verwenden',
+            'use_code' => 'Stattdessen Authentifizierungscode verwenden',
+            'help_note' => 'Keinen Zugriff auf Ihre Authenticator-App? Kontaktieren Sie den Support.',
+        ],
+
+        'common' => [
+            'privacy' => 'Datenschutz',
+            'terms' => 'AGB',
+            'contact' => 'Kontakt',
+        ],
+    ],
+
     'layout' => [
         'company_name' => 'FREITALER WOHNUNGSGENOSSENSCHAFT eG',
         'menu_open' => 'Menü öffnen',
@@ -130,6 +227,7 @@ return [
             'per_month' => '/Monat',
             'details' => 'Details',
             'show_all' => 'Alle Wohnungen anzeigen',
+            'no_listings' => 'Derzeit sind keine Wohnungen verfügbar. Schauen Sie bald wieder vorbei!',
         ],
 
         'services' => [

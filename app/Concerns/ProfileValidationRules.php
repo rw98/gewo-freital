@@ -12,20 +12,45 @@ trait ProfileValidationRules
      *
      * @return array<string, array<int, \Illuminate\Contracts\Validation\Rule|array<mixed>|string>>
      */
-    protected function profileRules(?int $userId = null): array
+    protected function profileRules(?string $userId = null): array
     {
         return [
-            'name' => $this->nameRules(),
+            'salutation' => $this->salutationRules(),
+            'first_name' => $this->firstNameRules(),
+            'middle_name' => $this->middleNameRules(),
+            'last_name' => $this->lastNameRules(),
             'email' => $this->emailRules($userId),
         ];
     }
 
     /**
-     * Get the validation rules used to validate user names.
-     *
-     * @return array<int, \Illuminate\Contracts\Validation\Rule|array<mixed>|string>
+     * @return array<int, string>
      */
-    protected function nameRules(): array
+    protected function salutationRules(): array
+    {
+        return ['nullable', 'string', 'max:50'];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function firstNameRules(): array
+    {
+        return ['required', 'string', 'max:255'];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function middleNameRules(): array
+    {
+        return ['nullable', 'string', 'max:255'];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function lastNameRules(): array
     {
         return ['required', 'string', 'max:255'];
     }
@@ -35,7 +60,7 @@ trait ProfileValidationRules
      *
      * @return array<int, \Illuminate\Contracts\Validation\Rule|array<mixed>|string>
      */
-    protected function emailRules(?int $userId = null): array
+    protected function emailRules(?string $userId = null): array
     {
         return [
             'required',

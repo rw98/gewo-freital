@@ -15,6 +15,15 @@
                     <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="building-office-2" :href="route('rental-objects.index')" :current="request()->routeIs('rental-objects.*')" wire:navigate>
+                        {{ __('Properties') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="home-modern" :href="route('flats.index')" :current="request()->routeIs('flats.*')" wire:navigate>
+                        {{ __('Flats') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="inbox-stack" :href="route('listing-requests.index')" :current="request()->routeIs('listing-requests.*')" wire:navigate>
+                        {{ __('listing_requests.requests') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

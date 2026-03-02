@@ -1,28 +1,49 @@
-<x-layouts::auth :title="__('Confirm password')">
-    <div class="flex flex-col gap-6">
-        <x-auth-header
-            :title="__('Confirm password')"
-            :description="__('This is a secure area of the application. Please confirm your password before continuing.')"
-        />
+<x-layouts::auth.public :title="__('pages.auth.confirm_password.title')">
+    <section class="relative bg-linear-to-br from-gewo-blue-50 to-white py-16 lg:py-24">
+        <div class="absolute inset-0 opacity-5">
+            <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <pattern id="dots" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+                    <circle cx="2" cy="2" r="1" fill="#00a3d9"/>
+                </pattern>
+                <rect width="100" height="100" fill="url(#dots)"/>
+            </svg>
+        </div>
 
-        <x-auth-session-status class="text-center" :status="session('status')" />
+        <div class="relative mx-auto max-w-md px-4 sm:px-6">
+            <flux:card class="p-8">
+                <div class="text-center mb-8">
+                    <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gewo-blue-100">
+                        <flux:icon name="shield-check" class="size-6 text-accent" />
+                    </div>
+                    <flux:heading size="xl" class="text-gewo-grey-900">{{ __('pages.auth.confirm_password.heading') }}</flux:heading>
+                    <flux:text class="mt-2 text-gewo-grey-600">
+                        {{ __('pages.auth.confirm_password.description') }}
+                    </flux:text>
+                </div>
 
-        <form method="POST" action="{{ route('password.confirm.store') }}" class="flex flex-col gap-6">
-            @csrf
+                <x-auth-session-status class="mb-6 text-center" :status="session('status')" />
 
-            <flux:input
-                name="password"
-                :label="__('Password')"
-                type="password"
-                required
-                autocomplete="current-password"
-                :placeholder="__('Password')"
-                viewable
-            />
+                <form method="POST" action="{{ route('password.confirm.store') }}" class="space-y-5">
+                    @csrf
 
-            <flux:button variant="primary" type="submit" class="w-full" data-test="confirm-password-button">
-                {{ __('Confirm') }}
-            </flux:button>
-        </form>
-    </div>
-</x-layouts::auth>
+                    <flux:field>
+                        <flux:label>{{ __('pages.auth.confirm_password.password') }}</flux:label>
+                        <flux:input
+                            name="password"
+                            type="password"
+                            required
+                            autocomplete="current-password"
+                            :placeholder="__('pages.auth.confirm_password.password_placeholder')"
+                            viewable
+                        />
+                        <flux:error name="password" />
+                    </flux:field>
+
+                    <flux:button variant="primary" type="submit" class="w-full" data-test="confirm-password-button">
+                        {{ __('pages.auth.confirm_password.submit') }}
+                    </flux:button>
+                </form>
+            </flux:card>
+        </div>
+    </section>
+</x-layouts::auth.public>

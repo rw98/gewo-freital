@@ -1,7 +1,7 @@
 <x-layouts.public
     :title="__('pages.landing.meta.title')"
     :nav-items="[
-        ['href' => '#wohnungen', 'icon' => 'home', 'label' => __('pages.landing.header.nav.rent')],
+        ['href' => route('listings.index'), 'icon' => 'home', 'label' => __('pages.landing.header.nav.rent')],
         ['href' => '#service', 'icon' => 'wrench-screwdriver', 'label' => __('pages.landing.header.nav.service')],
         ['href' => '#ueber-uns', 'icon' => 'building-office-2', 'label' => __('pages.landing.header.nav.about')],
         ['href' => '#kontakt', 'icon' => 'phone', 'label' => __('pages.landing.header.nav.contact')],
@@ -29,7 +29,7 @@
                         {{ __('pages.landing.hero.description') }}
                     </flux:text>
                     <div class="flex flex-wrap gap-4">
-                        <flux:button variant="primary" href="#wohnungen" icon="magnifying-glass" class="px-6! py-3!">
+                        <flux:button variant="primary" :href="route('listings.index')" icon="magnifying-glass" class="px-6! py-3!">
                             {{ __('pages.landing.hero.cta_primary') }}
                         </flux:button>
                         <flux:button variant="outline" href="#ueber-uns" icon="information-circle" class="px-6! py-3!">
@@ -60,100 +60,27 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
                 <div class="text-center">
-                    <flux:heading class="text-4xl font-bold text-white">{{ __('pages.landing.stats.experience.value') }}</flux:heading>
-                    <flux:text class="text-gewo-blue-200 mt-1">{{ __('pages.landing.stats.experience.label') }}</flux:text>
+                    <flux:heading size="xl" class="text-4xl font-bold text-white">{{ __('pages.landing.stats.experience.value') }}</flux:heading>
+                    <flux:text size="xl" class="text-gewo-blue-200 mt-1">{{ __('pages.landing.stats.experience.label') }}</flux:text>
                 </div>
                 <div class="text-center">
-                    <flux:heading class="text-4xl font-bold text-white">{{ __('pages.landing.stats.apartments.value') }}</flux:heading>
-                    <flux:text class="text-gewo-blue-200 mt-1">{{ __('pages.landing.stats.apartments.label') }}</flux:text>
+                    <flux:heading size="xl" class="text-4xl font-bold text-white">{{ __('pages.landing.stats.apartments.value') }}</flux:heading>
+                    <flux:text size="xl" class="text-gewo-blue-200 mt-1">{{ __('pages.landing.stats.apartments.label') }}</flux:text>
                 </div>
                 <div class="text-center">
-                    <flux:heading class="text-4xl font-bold text-white">{{ __('pages.landing.stats.locations.value') }}</flux:heading>
-                    <flux:text class="text-gewo-blue-200 mt-1">{{ __('pages.landing.stats.locations.label') }}</flux:text>
+                    <flux:heading size="xl" class="text-4xl font-bold text-white">{{ __('pages.landing.stats.locations.value') }}</flux:heading>
+                    <flux:text size="xl" class="text-gewo-blue-200 mt-1">{{ __('pages.landing.stats.locations.label') }}</flux:text>
                 </div>
                 <div class="text-center">
-                    <flux:heading class="text-4xl font-bold text-white">{{ __('pages.landing.stats.dividend.value') }}</flux:heading>
-                    <flux:text class="text-gewo-blue-200 mt-1">{{ __('pages.landing.stats.dividend.label') }}</flux:text>
+                    <flux:heading size="xl" class="text-4xl font-bold text-white">{{ __('pages.landing.stats.dividend.value') }}</flux:heading>
+                    <flux:text size="xl" class="text-gewo-blue-200 mt-1">{{ __('pages.landing.stats.dividend.label') }}</flux:text>
                 </div>
             </div>
         </div>
     </section>
 
     {{-- Apartment Search Section --}}
-    <section id="wohnungen" class="py-16 lg:py-24 bg-white">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <flux:heading size="xl" level="2">{{ __('pages.landing.search.title') }}</flux:heading>
-                <flux:text class="mt-4 max-w-2xl mx-auto">
-                    {{ __('pages.landing.search.description') }}
-                </flux:text>
-            </div>
-
-            {{-- Search Form --}}
-            <div class="bg-gewo-grey-50 rounded-2xl p-6 lg:p-8 max-w-4xl mx-auto">
-                <form class="grid md:grid-cols-4 gap-4">
-                    <flux:field>
-                        <flux:label>{{ __('pages.landing.search.form.location') }}</flux:label>
-                        <flux:select placeholder="{{ __('pages.landing.search.form.location_placeholder') }}">
-                            <flux:select.option>{{ __('pages.landing.search.form.location_placeholder') }}</flux:select.option>
-                            @foreach(__('pages.landing.search.locations') as $location)
-                                <flux:select.option>{{ $location }}</flux:select.option>
-                            @endforeach
-                        </flux:select>
-                    </flux:field>
-                    <flux:field>
-                        <flux:label>{{ __('pages.landing.search.form.rooms') }}</flux:label>
-                        <flux:select placeholder="{{ __('pages.landing.search.form.rooms_placeholder') }}">
-                            <flux:select.option>{{ __('pages.landing.search.form.rooms_placeholder') }}</flux:select.option>
-                            @foreach(__('pages.landing.search.form.rooms_options') as $option)
-                                <flux:select.option>{{ $option }}</flux:select.option>
-                            @endforeach
-                        </flux:select>
-                    </flux:field>
-                    <flux:field>
-                        <flux:label>{{ __('pages.landing.search.form.max_rent') }}</flux:label>
-                        <flux:input type="number" placeholder="{{ __('pages.landing.search.form.max_rent_placeholder') }}" />
-                    </flux:field>
-                    <div class="flex items-end">
-                        <flux:button variant="primary" class="w-full" icon="magnifying-glass">
-                            {{ __('pages.landing.search.form.submit') }}
-                        </flux:button>
-                    </div>
-                </form>
-            </div>
-
-            {{-- Featured Apartments --}}
-            <div class="mt-12 grid md:grid-cols-3 gap-6">
-                @foreach([
-                    ['location' => 'Freital-Döhlen', 'rooms' => '2 Zimmer', 'size' => '58 m²', 'rent' => '320'],
-                    ['location' => 'Freital-Potschappel', 'rooms' => '3 Zimmer', 'size' => '72 m²', 'rent' => '410'],
-                    ['location' => 'Bannewitz', 'rooms' => '4 Zimmer', 'size' => '95 m²', 'rent' => '520'],
-                ] as $apartment)
-                    <flux:card>
-                        <div class="aspect-video bg-linear-to-br from-gewo-grey-100 to-gewo-grey-50 rounded-lg mb-4 flex items-center justify-center">
-                            <flux:icon name="home" class="size-12 text-gewo-grey-400" />
-                        </div>
-                        <flux:heading size="lg">{{ $apartment['location'] }}</flux:heading>
-                        <flux:text size="sm" class="flex items-center gap-4 mt-2">
-                            <span>{{ $apartment['rooms'] }}</span>
-                            <span>•</span>
-                            <span>{{ $apartment['size'] }}</span>
-                        </flux:text>
-                        <div class="mt-4 flex items-center justify-between">
-                            <flux:heading class="text-xl text-accent">{{ $apartment['rent'] }} €<flux:text inline size="sm" class="font-normal">{{ __('pages.landing.search.per_month') }}</flux:text></flux:heading>
-                            <flux:button variant="outline" size="sm">{{ __('pages.landing.search.details') }}</flux:button>
-                        </div>
-                    </flux:card>
-                @endforeach
-            </div>
-
-            <div class="text-center mt-8">
-                <flux:button variant="ghost" icon-trailing="arrow-right">
-                    {{ __('pages.landing.search.show_all') }}
-                </flux:button>
-            </div>
-        </div>
-    </section>
+    <livewire:landing.apartment-search />
 
     {{-- Services Section --}}
     <section id="service" class="py-16 lg:py-24 bg-gewo-grey-50">
@@ -258,8 +185,8 @@
                 <div class="grid grid-cols-2 gap-4">
                     @foreach(__('pages.landing.about.stats') as $stat)
                         <div class="bg-gewo-grey-800 rounded-xl p-6">
-                            <flux:heading class="text-3xl text-accent">{{ $stat['value'] }}</flux:heading>
-                            <flux:text class="text-gewo-grey-300 mt-1">{{ $stat['label'] }}</flux:text>
+                            <flux:heading size="xl" class="text-3xl text-accent-foreground">{{ $stat['value'] }}</flux:heading>
+                            <flux:text size="xl" class="text-gewo-grey-300 mt-1">{{ $stat['label'] }}</flux:text>
                         </div>
                     @endforeach
                 </div>

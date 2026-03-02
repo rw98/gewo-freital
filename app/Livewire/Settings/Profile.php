@@ -15,7 +15,13 @@ class Profile extends Component
 {
     use ProfileValidationRules;
 
-    public string $name = '';
+    public string $salutation = '';
+
+    public string $first_name = '';
+
+    public string $middle_name = '';
+
+    public string $last_name = '';
 
     public string $email = '';
 
@@ -24,8 +30,12 @@ class Profile extends Component
      */
     public function mount(): void
     {
-        $this->name = Auth::user()->name;
-        $this->email = Auth::user()->email;
+        $user = Auth::user();
+        $this->salutation = $user->salutation ?? '';
+        $this->first_name = $user->first_name;
+        $this->middle_name = $user->middle_name ?? '';
+        $this->last_name = $user->last_name;
+        $this->email = $user->email;
     }
 
     /**

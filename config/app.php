@@ -123,4 +123,19 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin User Configuration
+    |--------------------------------------------------------------------------
+    |
+    | These values are used by the AdminUserSeeder to create the initial
+    | administrator account. Make sure to set secure values in production.
+    |
+    */
+
+    'admin_first_name' => env('ADMIN_FIRST_NAME', 'Admin'),
+    'admin_last_name' => env('ADMIN_LAST_NAME', 'User'),
+    'admin_email' => env('ADMIN_EMAIL', 'admin@gewo-freital.de'),
+    'admin_password' => env('ADMIN_PASSWORD', 'password'),
+
 ];
