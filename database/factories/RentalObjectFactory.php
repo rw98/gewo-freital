@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Enums\EnergyCertificateType;
+use App\Enums\EnergySource;
 use App\Models\RentalObject;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -68,5 +70,40 @@ class RentalObjectFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'has_elevator' => true,
         ]);
+    }
+
+    /**
+     * Configure the model factory with energy certificate data.
+     */
+    public function withEnergyCertificate(?float $kwh = null): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'energy_certificate_type' => fake()->randomElement(EnergyCertificateType::cases()),
+            'energy_consumption_kwh' => $kwh ?? fake()->randomFloat(2, 30, 300),
+            'energy_source' => fake()->randomElement(EnergySource::cases()),
+            'energy_certificate_valid_until' => fake()->dateTimeBetween('now', '+10 years'),
+        ]);
+    }
+
+    /**
+     * Configure the model factory with a specific energy efficiency class.
+     */
+    public function withEnergyClass(string $class): static
+    {
+        $ranges = [
+            'A+' => [0, 30],
+            'A' => [30, 50],
+            'B' => [50, 75],
+            'C' => [75, 100],
+            'D' => [100, 130],
+            'E' => [130, 160],
+            'F' => [160, 200],
+            'G' => [200, 250],
+            'H' => [250, 350],
+        ];
+
+        $range = $ranges[$class] ?? [100, 150];
+
+        return $this->withEnergyCertificate(fake()->randomFloat(2, $range[0], $range[1]));
     }
 }

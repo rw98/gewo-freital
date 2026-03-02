@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\EnergyCertificateType;
+use App\Enums\EnergyEfficiencyClass;
+use App\Enums\EnergySource;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +26,10 @@ class RentalObject extends Model
         'country',
         'has_elevator',
         'year_built',
+        'energy_certificate_type',
+        'energy_consumption_kwh',
+        'energy_source',
+        'energy_certificate_valid_until',
     ];
 
     /**
@@ -33,7 +40,32 @@ class RentalObject extends Model
         return [
             'has_elevator' => 'boolean',
             'year_built' => 'integer',
+            'energy_certificate_type' => EnergyCertificateType::class,
+            'energy_consumption_kwh' => 'decimal:2',
+            'energy_source' => EnergySource::class,
+            'energy_certificate_valid_until' => 'date',
         ];
+    }
+
+    /**
+     * Get the energy efficiency class based on the consumption value.
+     */
+    public function energyEfficiencyClass(): ?EnergyEfficiencyClass
+    {
+        if ($this->energy_consumption_kwh === null) {
+            return null;
+        }
+
+        return EnergyEfficiencyClass::fromKwh((float) $this->energy_consumption_kwh);
+    }
+
+    /**
+     * Check if the energy certificate is valid.
+     */
+    public function hasValidEnergyCertificate(): bool
+    {
+        return $this->energy_certificate_valid_until !== null
+            && $this->energy_certificate_valid_until->isFuture();
     }
 
     /**

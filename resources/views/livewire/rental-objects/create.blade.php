@@ -60,6 +60,57 @@
                 </flux:field>
             </div>
 
+            {{-- Energy Certificate Section --}}
+            <div class="border-t border-gewo-grey-200 pt-6 mt-6">
+                <flux:heading size="lg" class="mb-4">{{ __('Energy Certificate') }}</flux:heading>
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <flux:field>
+                        <flux:label>{{ __('Certificate Type') }}</flux:label>
+                        <flux:select wire:model="energy_certificate_type">
+                            <flux:select.option value="">{{ __('Select...') }}</flux:select.option>
+                            @foreach ($this->energyCertificateTypes as $type)
+                                <flux:select.option value="{{ $type->value }}">{{ $type->label() }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                        <flux:error name="energy_certificate_type" />
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>{{ __('Energy Consumption') }} (kWh/m²a)</flux:label>
+                        <flux:input wire:model="energy_consumption_kwh" type="number" step="0.01" min="0" max="999.99" placeholder="z.B. 125.50" />
+                        <flux:error name="energy_consumption_kwh" />
+                    </flux:field>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mt-6">
+                    <flux:field>
+                        <flux:label>{{ __('Energy Source') }}</flux:label>
+                        <flux:select wire:model="energy_source">
+                            <flux:select.option value="">{{ __('Select...') }}</flux:select.option>
+                            @foreach ($this->energySources as $source)
+                                <flux:select.option value="{{ $source->value }}">{{ $source->label() }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                        <flux:error name="energy_source" />
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>{{ __('Valid Until') }}</flux:label>
+                        <flux:input wire:model="energy_certificate_valid_until" type="date" />
+                        <flux:error name="energy_certificate_valid_until" />
+                    </flux:field>
+                </div>
+
+                {{-- Energy Label Preview --}}
+                @if ($energy_consumption_kwh)
+                    <div class="mt-6 p-4 bg-gewo-grey-50 rounded-lg">
+                        <flux:text size="sm" class="text-gewo-grey-600 mb-3">{{ __('Preview') }}</flux:text>
+                        <x-energy-label :kwh="$energy_consumption_kwh" size="sm" />
+                    </div>
+                @endif
+            </div>
+
             <div class="flex items-center justify-end gap-4">
                 <flux:button variant="ghost" :href="route('rental-objects.index')" wire:navigate>
                     {{ __('Cancel') }}

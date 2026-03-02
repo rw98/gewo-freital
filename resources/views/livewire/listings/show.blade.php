@@ -144,6 +144,29 @@
                                 </dl>
                             </div>
                         </div>
+
+                        {{-- Energy Certificate --}}
+                        @if ($this->rentalObject?->energy_consumption_kwh)
+                            <div class="mt-6 pt-6 border-t border-gewo-grey-200">
+                                <flux:heading size="base" class="mb-4">{{ __('listings.show.energy_certificate') }}</flux:heading>
+                                <x-energy-label :kwh="$this->rentalObject->energy_consumption_kwh" size="sm" />
+
+                                <dl class="mt-4 space-y-2 text-sm">
+                                    @if ($this->rentalObject->energy_certificate_type)
+                                        <div class="flex items-center justify-between">
+                                            <dt class="text-gewo-grey-600">{{ __('listings.show.certificate_type') }}</dt>
+                                            <dd class="font-medium">{{ $this->rentalObject->energy_certificate_type->label() }}</dd>
+                                        </div>
+                                    @endif
+                                    @if ($this->rentalObject->energy_source)
+                                        <div class="flex items-center justify-between">
+                                            <dt class="text-gewo-grey-600">{{ __('listings.show.energy_source') }}</dt>
+                                            <dd class="font-medium">{{ $this->rentalObject->energy_source->label() }}</dd>
+                                        </div>
+                                    @endif
+                                </dl>
+                            </div>
+                        @endif
                     </flux:card>
 
                     {{-- Amenities --}}

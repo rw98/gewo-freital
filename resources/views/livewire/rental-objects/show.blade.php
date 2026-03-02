@@ -47,6 +47,40 @@
                     <dd class="mt-1">{{ $rentalObject->year_built ?? __('Unknown') }}</dd>
                 </div>
             </dl>
+
+            {{-- Energy Certificate --}}
+            @if ($rentalObject->energy_consumption_kwh)
+                <div class="mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-700">
+                    <flux:heading size="base" class="mb-4">{{ __('Energy Certificate') }}</flux:heading>
+                    <x-energy-label :kwh="$rentalObject->energy_consumption_kwh" size="sm" />
+
+                    <dl class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm">
+                        @if ($rentalObject->energy_certificate_type)
+                            <div>
+                                <dt class="text-zinc-500 dark:text-zinc-400">{{ __('Certificate Type') }}</dt>
+                                <dd class="mt-1 font-medium">{{ $rentalObject->energy_certificate_type->label() }}</dd>
+                            </div>
+                        @endif
+                        @if ($rentalObject->energy_source)
+                            <div>
+                                <dt class="text-zinc-500 dark:text-zinc-400">{{ __('Energy Source') }}</dt>
+                                <dd class="mt-1 font-medium">{{ $rentalObject->energy_source->label() }}</dd>
+                            </div>
+                        @endif
+                        @if ($rentalObject->energy_certificate_valid_until)
+                            <div>
+                                <dt class="text-zinc-500 dark:text-zinc-400">{{ __('Valid Until') }}</dt>
+                                <dd class="mt-1 font-medium {{ $rentalObject->hasValidEnergyCertificate() ? '' : 'text-red-600' }}">
+                                    {{ $rentalObject->energy_certificate_valid_until->format('d.m.Y') }}
+                                    @unless ($rentalObject->hasValidEnergyCertificate())
+                                        <flux:badge color="red" size="sm" class="ml-2">{{ __('Expired') }}</flux:badge>
+                                    @endunless
+                                </dd>
+                            </div>
+                        @endif
+                    </dl>
+                </div>
+            @endif
         </flux:card>
 
         <flux:card>

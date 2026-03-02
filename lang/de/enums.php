@@ -68,4 +68,48 @@ return [
         'cancelled' => 'Abgesagt',
         'completed' => 'Durchgeführt',
     ],
+
+    'energy_efficiency_class' => [
+        'A+' => 'Energieeffizienzklasse A+',
+        'A' => 'Energieeffizienzklasse A',
+        'B' => 'Energieeffizienzklasse B',
+        'C' => 'Energieeffizienzklasse C',
+        'D' => 'Energieeffizienzklasse D',
+        'E' => 'Energieeffizienzklasse E',
+        'F' => 'Energieeffizienzklasse F',
+        'G' => 'Energieeffizienzklasse G',
+        'H' => 'Energieeffizienzklasse H',
+    ],
+
+    'energy_efficiency_description' => [
+        'A+' => 'Passivhaus, KfW-Effizienzhaus 40',
+        'A' => 'Niedrigenergiehäuser, KfW-Effizienzhaus 55',
+        'B' => 'Neubau-Standard',
+        'C' => 'Mindestanforderung für Neubauten',
+        'D' => 'Gut sanierte Altbauten',
+        'E' => 'Sanierte Altbauten',
+        'F' => 'Sanierte Altbauten',
+        'G' => 'Teilweise sanierte Altbauten',
+        'H' => 'Unsanierte Altbauten',
+    ],
+
+    'energy_certificate_type' => [
+        'consumption' => 'Verbrauchsausweis',
+        'demand' => 'Bedarfsausweis',
+        'consumption_description' => 'Basiert auf dem tatsächlichen Energieverbrauch der letzten 3 Jahre',
+        'demand_description' => 'Basiert auf einer technischen Analyse des Gebäudes',
+    ],
+
+    'energy_source' => [
+        'gas' => 'Erdgas',
+        'oil' => 'Heizöl',
+        'district_heating' => 'Fernwärme',
+        'electricity' => 'Strom',
+        'heat_pump' => 'Wärmepumpe',
+        'pellets' => 'Pellets',
+        'wood' => 'Holz',
+        'solar' => 'Solar',
+        'geothermal' => 'Geothermie',
+        'other' => 'Sonstige',
+    ],
 ];

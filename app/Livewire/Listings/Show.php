@@ -44,6 +44,12 @@ class Show extends Component
             ->get();
     }
 
+    #[Computed]
+    public function rentalObject()
+    {
+        return $this->listing->flat?->rentalObject;
+    }
+
     public function render(): View
     {
         return view('livewire.listings.show')

@@ -71,5 +71,9 @@ return [
         'location' => 'Standort',
         'map_not_available' => 'Karte nicht verfügbar',
         'similar_listings' => 'Ähnliche Wohnungen',
+        'energy_certificate' => 'Energieausweis',
+        'certificate_type' => 'Ausweistyp',
+        'energy_source' => 'Energieträger',
+        'energy_class' => 'Energieeffizienzklasse',
     ],
 ];
