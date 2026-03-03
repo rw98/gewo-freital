@@ -112,4 +112,9 @@ return [
         'geothermal' => 'Geothermie',
         'other' => 'Sonstige',
     ],
+
+    'integration_type' => [
+        'immoscout' => 'ImmobilienScout24',
+        'immowelt' => 'Immowelt',
+    ],
 ];

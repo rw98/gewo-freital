@@ -196,7 +196,7 @@
                 {{-- Right Column: Price and Contact --}}
                 <div class="space-y-6">
                     {{-- Price Card --}}
-                    <flux:card class="sticky top-4">
+                    <flux:card class="sticky top-4" style="z-index:3">
                         <flux:heading size="lg" class="mb-4">{{ __('listings.show.rent') }}</flux:heading>
 
                         <div class="space-y-3">
@@ -231,13 +231,14 @@
                     </flux:card>
 
                     {{-- Location Info --}}
-                    <flux:card>
+                    <flux:card style="z-index:2">
                         <flux:heading size="lg" class="mb-4">{{ __('listings.show.location') }}</flux:heading>
                         @php
                             $mapAddress = e($listing->street . ' ' . $listing->street_number . ', ' . $listing->postal_code . ' ' . $listing->city . ', Germany');
                             $mapNotAvailable = e(__('listings.show.map_not_available'));
                         @endphp
                         <div
+                            style="z-index:2"
                             x-data="listingMap('{{ $mapAddress }}', '{{ $mapNotAvailable }}')"
                             class="aspect-video bg-gewo-grey-100 rounded-lg overflow-hidden"
                             x-ref="mapContainer"

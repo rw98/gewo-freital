@@ -101,7 +101,7 @@
                     {{-- Quick Actions --}}
                     <flux:card>
                         <flux:heading size="lg" class="mb-4">{{ __('Actions') }}</flux:heading>
-                        <div class="grid sm:grid-cols-3 gap-3">
+                        <div class="grid sm:grid-cols-2 gap-3">
                             <flux:button
                                 href="{{ route('listing-requests.documents', $listingRequest->access_token) }}"
                                 variant="outline"
@@ -136,6 +136,23 @@
                             >
                                 {{ __('listing_requests.messages') }}
                             </flux:button>
+
+                            @if ($listingRequest->canFillSelfDisclosure())
+                                <flux:button
+                                    href="{{ route('listing-requests.self-disclosure', $listingRequest->access_token) }}"
+                                    variant="{{ $listingRequest->hasSelfDisclosure() ? 'outline' : 'primary' }}"
+                                    icon="clipboard-document-list"
+                                    class="justify-center"
+                                    wire:navigate
+                                >
+                                    {{ __('listing_requests.self_disclosure.title') }}
+                                    @if ($listingRequest->hasSelfDisclosure())
+                                        <flux:badge size="sm" color="emerald" class="ml-2">
+                                            <flux:icon name="check" class="size-3" />
+                                        </flux:badge>
+                                    @endif
+                                </flux:button>
+                            @endif
                         </div>
                     </flux:card>
 

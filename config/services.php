@@ -35,4 +35,23 @@ return [
         ],
     ],
 
+    'immoscout' => [
+        'base_url' => env('IMMOSCOUT_BASE_URL', 'https://rest.immobilienscout24.de/restapi/api'),
+        'sandbox_url' => 'https://rest.sandbox-immobilienscout24.de/restapi/api',
+        'consumer_key' => env('IMMOSCOUT_CONSUMER_KEY'),
+        'consumer_secret' => env('IMMOSCOUT_CONSUMER_SECRET'),
+        'access_token' => env('IMMOSCOUT_ACCESS_TOKEN'),
+        'access_token_secret' => env('IMMOSCOUT_ACCESS_TOKEN_SECRET'),
+    ],
+
+    'immowelt' => [
+        'ftp_host' => env('IMMOWELT_FTP_HOST'),
+        'ftp_port' => env('IMMOWELT_FTP_PORT', 21),
+        'ftp_username' => env('IMMOWELT_FTP_USERNAME'),
+        'ftp_password' => env('IMMOWELT_FTP_PASSWORD'),
+        'ftp_path' => env('IMMOWELT_FTP_PATH', '/'),
+        'ftp_ssl' => env('IMMOWELT_FTP_SSL', false),
+        'provider_id' => env('IMMOWELT_PROVIDER_ID', 'GEWO'),
+    ],
+
 ];

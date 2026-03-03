@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
@@ -122,6 +123,18 @@ class Listing extends Model
     public function timeslots(): HasMany
     {
         return $this->hasMany(RequestTimeslot::class);
+    }
+
+    /**
+     * Get the distribution channels for this listing.
+     *
+     * @return BelongsToMany<ListingDistribution, $this>
+     */
+    public function distributions(): BelongsToMany
+    {
+        return $this->belongsToMany(ListingDistribution::class)
+            ->withPivot(['external_id', 'last_synced_at', 'sync_error'])
+            ->withTimestamps();
     }
 
     /**

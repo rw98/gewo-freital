@@ -23,6 +23,7 @@ Route::prefix('anfrage/{access_token}')->name('listing-requests.')->group(functi
     Route::livewire('/dokumente', ListingRequests\Requestee\Documents::class)->name('documents');
     Route::livewire('/termine', ListingRequests\Requestee\Appointments::class)->name('appointments');
     Route::livewire('/nachrichten', ListingRequests\Requestee\Messages::class)->name('messages');
+    Route::livewire('/selbstauskunft', ListingRequests\Requestee\SelfDisclosure::class)->name('self-disclosure');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

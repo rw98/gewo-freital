@@ -116,6 +116,77 @@ return [
     'notification_new_message' => 'Sie haben eine neue Nachricht erhalten',
     'notification_listing_closed' => 'Das Inserat wurde geschlossen',
 
+    // Self-disclosure form
+    'back_to_request' => 'Zurück zur Anfrage',
+    'self_disclosure' => [
+        'title' => 'Selbstauskunft',
+        'description' => 'Bitte füllen Sie die Selbstauskunft vollständig aus. Diese Informationen helfen uns bei der Bearbeitung Ihrer Anfrage.',
+        'for_listing' => 'Für: :title',
+        'not_available' => 'Die Selbstauskunft kann in diesem Status nicht ausgefüllt werden.',
+        'saved' => 'Ihre Selbstauskunft wurde erfolgreich gespeichert.',
+        'required_fields' => 'Pflichtfelder',
+        'submit' => 'Selbstauskunft absenden',
+
+        // Personal info
+        'personal_info' => 'Persönliche Angaben',
+        'date_of_birth' => 'Geburtsdatum',
+        'nationality' => 'Staatsangehörigkeit',
+        'current_address' => 'Aktuelle Adresse',
+
+        // Employment
+        'employment' => 'Beschäftigung',
+        'employment_status' => 'Beschäftigungsstatus',
+        'job_title' => 'Berufsbezeichnung',
+        'job_title_hint' => 'z.B. Softwareentwickler, Krankenpfleger, Lehrer',
+        'monthly_net_income' => 'Monatliches Nettoeinkommen',
+
+        // Household / Tenants
+        'household' => 'Haushalt & Mitbewohner',
+        'tenants_description' => 'Bitte geben Sie alle Personen an, die in der Wohnung wohnen werden.',
+        'tenant_number' => 'Person :number',
+        'pays_rent' => 'Zahlt Miete',
+        'pays_rent_yes' => 'Ja, zahlt anteilig Miete',
+        'pays_rent_no' => 'Nein, nur Mitbewohner',
+        'pays_rent_yes_hint' => 'Vollständige Angaben zu Beschäftigung und Einkommen erforderlich.',
+        'pays_rent_no_hint' => 'Nur Name und Geburtsdatum erforderlich.',
+        'tenant_first_name' => 'Vorname',
+        'tenant_last_name' => 'Nachname',
+        'tenant_email' => 'E-Mail-Adresse',
+        'tenant_phone' => 'Telefonnummer',
+        'tenant_date_of_birth' => 'Geburtsdatum',
+        'tenant_relationship' => 'Beziehung',
+        'tenant_relationship_hint' => 'z.B. Partner/in, Kind, WG-Mitbewohner',
+        'tenant_employment_status' => 'Beschäftigungsstatus',
+        'tenant_monthly_net_income' => 'Monatliches Nettoeinkommen',
+        'add_paying_tenant' => 'Mietzahlende Person hinzufügen',
+        'add_occupant' => 'Mitbewohner hinzufügen',
+        'desired_move_in_date' => 'Gewünschtes Einzugsdatum',
+        'has_pets' => 'Haustiere',
+        'pets_details' => 'Details zu den Haustieren',
+        'pets_details_hint' => 'z.B. 1 Katze, kastriert',
+        'is_smoker' => 'Raucher im Haushalt',
+
+        // Current tenancy
+        'current_tenancy' => 'Aktuelles Mietverhältnis',
+        'current_landlord_name' => 'Name des aktuellen Vermieters',
+        'current_landlord_phone' => 'Telefon des Vermieters',
+        'current_landlord_email' => 'E-Mail des Vermieters',
+        'current_landlord_hint' => 'Optional, aber hilfreich für eine Referenz.',
+        'reason_for_moving' => 'Umzugsgrund',
+
+        // Financial
+        'financial_declarations' => 'Finanzielle Erklärungen',
+        'financial_warning' => 'Bitte beantworten Sie die folgenden Fragen wahrheitsgemäß. Falsche Angaben können zur Kündigung des Mietverhältnisses führen.',
+        'has_insolvency' => 'Insolvenzverfahren eröffnet oder beantragt?',
+        'has_eviction_history' => 'In der Vergangenheit Räumungsklage erhalten?',
+        'has_rental_debt' => 'Offene Mietschulden aus vorherigen Mietverhältnissen?',
+
+        // Additional
+        'additional_info' => 'Weitere Informationen',
+        'additional_notes' => 'Zusätzliche Anmerkungen',
+        'additional_notes_hint' => 'Gibt es noch etwas, das Sie uns mitteilen möchten?',
+    ],
+
     // Email content
     'emails' => [
         'subject_confirmed' => 'Ihre Anfrage wurde bestätigt',

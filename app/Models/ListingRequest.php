@@ -34,6 +34,20 @@ class ListingRequest extends Model
         'closed_at',
         'rejected_at',
         'rejection_reason',
+        // Self-disclosure fields
+        'has_pets',
+        'pets_details',
+        'is_smoker',
+        'current_landlord_name',
+        'current_landlord_phone',
+        'current_landlord_email',
+        'reason_for_moving',
+        'desired_move_in_date',
+        'has_insolvency',
+        'has_eviction_history',
+        'has_rental_debt',
+        'additional_notes',
+        'self_disclosure_completed_at',
     ];
 
     /**
@@ -49,6 +63,14 @@ class ListingRequest extends Model
             'signed_at' => 'datetime',
             'closed_at' => 'datetime',
             'rejected_at' => 'datetime',
+            // Self-disclosure casts
+            'has_pets' => 'boolean',
+            'is_smoker' => 'boolean',
+            'desired_move_in_date' => 'date',
+            'has_insolvency' => 'boolean',
+            'has_eviction_history' => 'boolean',
+            'has_rental_debt' => 'boolean',
+            'self_disclosure_completed_at' => 'datetime',
         ];
     }
 
@@ -113,6 +135,14 @@ class ListingRequest extends Model
     }
 
     /**
+     * @return HasMany<RequestTenant, $this>
+     */
+    public function tenants(): HasMany
+    {
+        return $this->hasMany(RequestTenant::class);
+    }
+
+    /**
      * Get the full name of the requestee.
      */
     public function fullName(): string
@@ -169,5 +199,25 @@ class ListingRequest extends Model
     public function scopeWithStatus($query, ListingRequestStatus $status)
     {
         return $query->where('status', $status);
+    }
+
+    /**
+     * Check if self-disclosure form can be filled.
+     */
+    public function canFillSelfDisclosure(): bool
+    {
+        return in_array($this->status, [
+            ListingRequestStatus::AppointmentPending,
+            ListingRequestStatus::WaitingForInformation,
+            ListingRequestStatus::WaitingForApproval,
+        ], true);
+    }
+
+    /**
+     * Check if self-disclosure form has been completed.
+     */
+    public function hasSelfDisclosure(): bool
+    {
+        return $this->self_disclosure_completed_at !== null;
     }
 }
