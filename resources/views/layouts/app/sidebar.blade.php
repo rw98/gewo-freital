@@ -24,6 +24,11 @@
                     <flux:sidebar.item icon="inbox-stack" :href="route('listing-requests.index')" :current="request()->routeIs('listing-requests.*')" wire:navigate>
                         {{ __('listing_requests.requests') }}
                     </flux:sidebar.item>
+                    @if (auth()->user()->canManagePages())
+                        <flux:sidebar.item icon="document-text" :href="route('pages.index')" :current="request()->routeIs('pages.*')" wire:navigate>
+                            {{ __('pages.nav.pages') }}
+                        </flux:sidebar.item>
+                    @endif
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

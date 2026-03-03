@@ -117,4 +117,58 @@ return [
         'immoscout' => 'ImmobilienScout24',
         'immowelt' => 'Immowelt',
     ],
+
+    'page_status' => [
+        'draft' => 'Entwurf',
+        'published' => 'Veröffentlicht',
+        'archived' => 'Archiviert',
+    ],
+
+    'page_layout' => [
+        'default' => 'Standard',
+        'full_width' => 'Volle Breite',
+        'sidebar' => 'Mit Seitenleiste',
+        'landing' => 'Landing Page',
+    ],
+
+    'page_editor_role' => [
+        'editor' => 'Redakteur',
+        'admin' => 'Administrator',
+    ],
+
+    'template_category' => [
+        'landing' => 'Landing Pages',
+        'about' => 'Über uns',
+        'contact' => 'Kontakt',
+        'legal' => 'Rechtliches',
+        'content' => 'Inhalte',
+    ],
+
+    'block_type' => [
+        'heading' => 'Überschrift',
+        'paragraph' => 'Absatz',
+        'rich_text' => 'Formatierter Text',
+        'image' => 'Bild',
+        'image_gallery' => 'Bildergalerie',
+        'video' => 'Video',
+        'grid' => 'Raster',
+        'columns' => 'Spalten',
+        'spacer' => 'Abstand',
+        'divider' => 'Trennlinie',
+        'card' => 'Karte',
+        'callout' => 'Hinweisbox',
+        'list' => 'Liste',
+        'table' => 'Tabelle',
+        'accordion' => 'Akkordeon',
+        'tabs' => 'Tabs',
+        'button' => 'Button',
+        'button_group' => 'Button-Gruppe',
+        'contact_form' => 'Kontaktformular',
+        'hero' => 'Hero-Bereich',
+        'feature_grid' => 'Feature-Raster',
+        'testimonials' => 'Referenzen',
+        'faq' => 'FAQ',
+        'cta' => 'Call-to-Action',
+        'pricing_table' => 'Preistabelle',
+    ],
 ];

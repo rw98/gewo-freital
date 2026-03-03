@@ -6,7 +6,9 @@ use App\Enums\RequestAppointmentStatus;
 use App\Models\ListingRequest;
 use App\Models\RequestAppointment;
 use App\Models\RequestTimeslot;
+use App\Notifications\AppointmentConfirmedNotification;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -72,11 +74,15 @@ class Appointments extends Component
             return;
         }
 
-        RequestAppointment::create([
+        $appointment = RequestAppointment::create([
             'listing_request_id' => $this->listingRequest->id,
             'timeslot_id' => $timeslot->id,
             'status' => RequestAppointmentStatus::Pending,
         ]);
+
+        // Send confirmation notification with iCal attachment
+        Notification::route('mail', $this->listingRequest->email)
+            ->notify(new AppointmentConfirmedNotification($appointment));
 
         $this->listingRequest->refresh();
 

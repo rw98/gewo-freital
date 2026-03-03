@@ -3,6 +3,7 @@
 use App\Http\Controllers\ListingRequestController;
 use App\Livewire\ListingRequests;
 use App\Livewire\Listings;
+use App\Livewire\Pages;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'landing')->name('home');
@@ -29,6 +30,16 @@ Route::prefix('anfrage/{access_token}')->name('listing-requests.')->group(functi
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
 });
+
+// CMS Pages - Admin
+Route::middleware(['auth'])->prefix('admin/seiten')->name('pages.')->group(function () {
+    Route::livewire('/', Pages\Index::class)->name('index');
+    Route::livewire('/erstellen', Pages\Create::class)->name('create');
+    Route::livewire('/{page}/bearbeiten', Pages\Builder::class)->name('builder');
+});
+
+// CMS Pages - Public
+Route::livewire('/p/{slug}', Pages\PublicShow::class)->name('pages.show');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/rental.php';

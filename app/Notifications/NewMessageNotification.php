@@ -33,7 +33,7 @@ class NewMessageNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        $portalUrl = route('listing-requests.portal.messages', $this->listingRequest->access_token);
+        $portalUrl = route('listing-requests.messages', $this->listingRequest->access_token);
         $listingTitle = $this->listingRequest->listing->title;
         $firstName = $this->listingRequest->first_name;
         $messagePreview = Str::limit($this->message->content, 200);

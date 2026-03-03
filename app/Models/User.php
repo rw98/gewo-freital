@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\PageEditorRole;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,6 +32,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'page_role',
     ];
 
     /**
@@ -65,6 +67,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'page_role' => PageEditorRole::class,
         ];
     }
 
@@ -74,6 +77,30 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->is_admin === true;
+    }
+
+    /**
+     * Check if the user has any page editor role.
+     */
+    public function hasPageRole(): bool
+    {
+        return $this->page_role !== null;
+    }
+
+    /**
+     * Check if the user is a page admin.
+     */
+    public function isPageAdmin(): bool
+    {
+        return $this->page_role === PageEditorRole::Admin;
+    }
+
+    /**
+     * Check if the user can manage pages.
+     */
+    public function canManagePages(): bool
+    {
+        return $this->isAdmin() || $this->hasPageRole();
     }
 
     /**
@@ -155,5 +182,15 @@ class User extends Authenticatable
     public function listings(): HasMany
     {
         return $this->hasMany(Listing::class, 'created_by');
+    }
+
+    /**
+     * Get the pages created by this user.
+     *
+     * @return HasMany<Page, $this>
+     */
+    public function pages(): HasMany
+    {
+        return $this->hasMany(Page::class, 'created_by');
     }
 }
