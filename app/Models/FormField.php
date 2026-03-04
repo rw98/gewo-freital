@@ -16,6 +16,8 @@ class FormField extends Model
 
     protected $fillable = [
         'form_id',
+        'parent_id',
+        'column_index',
         'type',
         'name',
         'label',
@@ -46,6 +48,32 @@ class FormField extends Model
     public function form(): BelongsTo
     {
         return $this->belongsTo(Form::class);
+    }
+
+    /**
+     * @return BelongsTo<FormField, $this>
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(FormField::class, 'parent_id');
+    }
+
+    /**
+     * @return HasMany<FormField, $this>
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany(FormField::class, 'parent_id')->orderBy('column_index')->orderBy('order');
+    }
+
+    /**
+     * Get children for a specific column index.
+     *
+     * @return HasMany<FormField, $this>
+     */
+    public function childrenInColumn(int $columnIndex): HasMany
+    {
+        return $this->children()->where('column_index', $columnIndex);
     }
 
     /**

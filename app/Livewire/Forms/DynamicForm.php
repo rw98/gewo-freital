@@ -29,6 +29,8 @@ class DynamicForm extends Component
 
     public array $files = [];
 
+    public array $lockedFields = [];
+
     public bool $submitted = false;
 
     public function mount(
@@ -37,14 +39,14 @@ class DynamicForm extends Component
         ?string $autoFillSourceType = null,
         ?string $autoFillSourceId = null
     ): void {
-        $this->form = $form->load('fields');
+        $this->form = $form->load(['fields', 'fields.children']);
         $this->listingRequest = $listingRequest;
         $this->autoFillSourceType = $autoFillSourceType;
         $this->autoFillSourceId = $autoFillSourceId;
 
-        // Initialize values with defaults (skip info fields)
+        // Initialize values with defaults (skip non-input fields)
         foreach ($this->form->fields as $field) {
-            if ($field->type === FormFieldType::Info) {
+            if (! $field->type->requiresInput()) {
                 continue;
             }
 
@@ -55,8 +57,32 @@ class DynamicForm extends Component
             }
         }
 
-        // Apply auto-fill values
+        // Apply auto-fill values from field config
         $this->applyAutoFill();
+
+        // Apply employee prefilled values (overrides auto-fill)
+        $this->applyPrefilledValues();
+    }
+
+    /**
+     * Apply prefilled values from listing request.
+     */
+    private function applyPrefilledValues(): void
+    {
+        if (! $this->listingRequest) {
+            return;
+        }
+
+        // Apply prefilled values
+        $prefilledValues = $this->listingRequest->form_prefilled_values ?? [];
+        foreach ($prefilledValues as $fieldName => $value) {
+            if (array_key_exists($fieldName, $this->values)) {
+                $this->values[$fieldName] = $value;
+            }
+        }
+
+        // Store locked fields
+        $this->lockedFields = $this->listingRequest->form_locked_fields ?? [];
     }
 
     /**
@@ -118,6 +144,14 @@ class DynamicForm extends Component
     }
 
     /**
+     * Check if a field is locked by the employee.
+     */
+    public function isFieldLocked(string $fieldName): bool
+    {
+        return in_array($fieldName, $this->lockedFields);
+    }
+
+    /**
      * Format auto-fill value for the field type.
      */
     private function formatAutoFillValue(mixed $value, FormFieldType $fieldType): mixed
@@ -140,13 +174,36 @@ class DynamicForm extends Component
         return $this->form->fields;
     }
 
+    #[Computed]
+    public function topLevelFields()
+    {
+        return $this->form->fields
+            ->whereNull('parent_id')
+            ->sortBy('order')
+            ->values();
+    }
+
+    /**
+     * Get children fields for a row by column index.
+     *
+     * @return \Illuminate\Support\Collection<int, \App\Models\FormField>
+     */
+    public function getColumnFields(string $rowId, int $columnIndex)
+    {
+        return $this->form->fields
+            ->where('parent_id', $rowId)
+            ->where('column_index', $columnIndex)
+            ->sortBy('order')
+            ->values();
+    }
+
     public function rules(): array
     {
         $rules = [];
 
         foreach ($this->form->fields as $field) {
-            // Skip info fields - they don't have inputs
-            if ($field->type === FormFieldType::Info) {
+            // Skip non-input fields (Info, Row)
+            if (! $field->type->requiresInput()) {
                 continue;
             }
 
@@ -168,7 +225,7 @@ class DynamicForm extends Component
         $attributes = [];
 
         foreach ($this->form->fields as $field) {
-            if ($field->type === FormFieldType::Info) {
+            if (! $field->type->requiresInput()) {
                 continue;
             }
 
@@ -193,9 +250,9 @@ class DynamicForm extends Component
             'submitted_at' => now(),
         ]);
 
-        // Create field values (skip info fields)
+        // Create field values (skip non-input fields)
         foreach ($this->form->fields as $field) {
-            if ($field->type === FormFieldType::Info) {
+            if (! $field->type->requiresInput()) {
                 continue;
             }
 

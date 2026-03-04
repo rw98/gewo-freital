@@ -18,6 +18,8 @@ class ListingRequest extends Model
     protected $fillable = [
         'listing_id',
         'custom_form_id',
+        'form_prefilled_values',
+        'form_locked_fields',
         'assigned_to',
         'approved_by',
         'email',
@@ -74,6 +76,8 @@ class ListingRequest extends Model
             'has_rental_debt' => 'boolean',
             'self_disclosure_completed_at' => 'datetime',
             'custom_form_completed_at' => 'datetime',
+            'form_prefilled_values' => 'array',
+            'form_locked_fields' => 'array',
         ];
     }
 

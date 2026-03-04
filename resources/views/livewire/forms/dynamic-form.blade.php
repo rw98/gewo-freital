@@ -13,12 +13,19 @@
                 <flux:text class="text-zinc-600">{{ $form->description }}</flux:text>
             @endif
 
-            @foreach ($this->fields as $field)
-                <x-forms.field-renderer
-                    :field="$field"
-                    :name="$field->name"
-                    wire:model="{{ $field->type->value === 'file' ? 'files.'.$field->name : 'values.'.$field->name }}"
-                />
+            @foreach ($this->topLevelFields as $field)
+                @if ($field->type->value === 'row')
+                    {{-- Row Layout --}}
+                    @include('livewire.forms.partials.render-row', ['row' => $field])
+                @else
+                    {{-- Regular Field --}}
+                    <x-forms.field-renderer
+                        :field="$field"
+                        :name="$field->name"
+                        :locked="$this->isFieldLocked($field->name)"
+                        wire:model="{{ $field->type->value === 'file' ? 'files.'.$field->name : 'values.'.$field->name }}"
+                    />
+                @endif
             @endforeach
 
             <div class="pt-4">

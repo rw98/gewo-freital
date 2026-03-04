@@ -206,14 +206,24 @@
                     @endforeach
                 </flux:select>
                 @if ($listingRequest->custom_form_id)
-                    <div class="mt-3 flex items-center gap-2">
-                        @if ($listingRequest->hasCustomForm())
-                            <flux:badge color="green" size="sm">{{ __('forms.completed') }}</flux:badge>
-                            <flux:text size="xs" class="text-gewo-grey-500">
-                                {{ $listingRequest->custom_form_completed_at->format('d.m.Y H:i') }}
-                            </flux:text>
-                        @else
-                            <flux:badge color="yellow" size="sm">{{ __('forms.pending') }}</flux:badge>
+                    <div class="mt-3 space-y-2">
+                        <div class="flex items-center gap-2">
+                            @if ($listingRequest->hasCustomForm())
+                                <flux:badge color="green" size="sm">{{ __('forms.completed') }}</flux:badge>
+                                <flux:text size="xs" class="text-gewo-grey-500">
+                                    {{ $listingRequest->custom_form_completed_at->format('d.m.Y H:i') }}
+                                </flux:text>
+                            @else
+                                <flux:badge color="yellow" size="sm">{{ __('forms.pending') }}</flux:badge>
+                            @endif
+                        </div>
+                        @if (!$listingRequest->hasCustomForm())
+                            <flux:button wire:click="openPrefillModal" variant="outline" size="sm" class="w-full" icon="pencil-square">
+                                {{ __('forms.prefill.button') }}
+                                @if ($listingRequest->form_prefilled_values)
+                                    <flux:badge size="sm" color="blue" class="ml-2">{{ count($listingRequest->form_prefilled_values) }}</flux:badge>
+                                @endif
+                            </flux:button>
                         @endif
                     </div>
                 @endif
@@ -301,4 +311,126 @@
             </div>
         </form>
     </flux:modal>
+
+    {{-- Prefill Form Modal --}}
+    @if ($listingRequest->customForm)
+        <flux:modal wire:model="showPrefillModal" class="max-w-2xl">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">{{ __('forms.prefill.title') }}</flux:heading>
+                    <flux:text class="text-gewo-grey-500">{{ __('forms.prefill.description') }}</flux:text>
+                </div>
+
+                <div class="space-y-4 max-h-[60vh] overflow-y-auto">
+                    @foreach ($listingRequest->customForm->fields()->orderBy('order')->get() as $field)
+                        @if ($field->type->value !== 'info')
+                            <div class="p-4 border border-gewo-grey-200 rounded-lg {{ in_array($field->name, $lockedFields) ? 'bg-blue-50 border-blue-200' : '' }}">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <flux:icon name="{{ $field->type->icon() }}" class="size-4 text-gewo-grey-500" />
+                                        <flux:label>{{ $field->label }}</flux:label>
+                                        @if ($field->is_required)
+                                            <span class="text-red-500">*</span>
+                                        @endif
+                                    </div>
+                                    <flux:button
+                                        wire:click="toggleFieldLock('{{ $field->name }}')"
+                                        variant="ghost"
+                                        size="xs"
+                                        :icon="in_array($field->name, $lockedFields) ? 'lock-closed' : 'lock-open'"
+                                        :class="in_array($field->name, $lockedFields) ? 'text-blue-600' : 'text-gewo-grey-400'"
+                                    />
+                                </div>
+
+                                @switch($field->type->value)
+                                    @case('textarea')
+                                        <flux:textarea
+                                            wire:model="prefillValues.{{ $field->name }}"
+                                            :placeholder="$field->placeholder"
+                                            rows="3"
+                                        />
+                                        @break
+
+                                    @case('select')
+                                        <flux:select wire:model="prefillValues.{{ $field->name }}">
+                                            <flux:select.option value="">{{ __('forms.field.select_placeholder') }}</flux:select.option>
+                                            @foreach ($field->getConfig('options', []) as $option)
+                                                <flux:select.option :value="$option['value'] ?? $option['label']">
+                                                    {{ $option['label'] }}
+                                                </flux:select.option>
+                                            @endforeach
+                                        </flux:select>
+                                        @break
+
+                                    @case('radio')
+                                        <flux:radio.group wire:model="prefillValues.{{ $field->name }}">
+                                            @foreach ($field->getConfig('options', []) as $option)
+                                                <flux:radio :value="$option['value'] ?? $option['label']" :label="$option['label']" />
+                                            @endforeach
+                                        </flux:radio.group>
+                                        @break
+
+                                    @case('checkbox')
+                                        <flux:checkbox
+                                            wire:model="prefillValues.{{ $field->name }}"
+                                            :label="__('forms.prefill.checked')"
+                                        />
+                                        @break
+
+                                    @case('date')
+                                        <flux:input
+                                            type="date"
+                                            wire:model="prefillValues.{{ $field->name }}"
+                                        />
+                                        @break
+
+                                    @case('number')
+                                        <flux:input
+                                            type="number"
+                                            wire:model="prefillValues.{{ $field->name }}"
+                                            :placeholder="$field->placeholder"
+                                            :min="$field->getConfig('min')"
+                                            :max="$field->getConfig('max')"
+                                            :step="$field->getConfig('step', 1)"
+                                        />
+                                        @break
+
+                                    @case('email')
+                                        <flux:input
+                                            type="email"
+                                            wire:model="prefillValues.{{ $field->name }}"
+                                            :placeholder="$field->placeholder"
+                                        />
+                                        @break
+
+                                    @default
+                                        <flux:input
+                                            type="text"
+                                            wire:model="prefillValues.{{ $field->name }}"
+                                            :placeholder="$field->placeholder"
+                                        />
+                                @endswitch
+
+                                @if (in_array($field->name, $lockedFields))
+                                    <flux:text size="xs" class="text-blue-600 mt-1">
+                                        <flux:icon name="lock-closed" class="size-3 inline" />
+                                        {{ __('forms.prefill.locked_hint') }}
+                                    </flux:text>
+                                @endif
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+
+                <div class="flex justify-end gap-2 pt-4 border-t border-gewo-grey-200">
+                    <flux:button wire:click="$set('showPrefillModal', false)" variant="ghost">
+                        {{ __('Cancel') }}
+                    </flux:button>
+                    <flux:button wire:click="savePrefillValues" variant="primary">
+                        {{ __('forms.prefill.save') }}
+                    </flux:button>
+                </div>
+            </div>
+        </flux:modal>
+    @endif
 </div>

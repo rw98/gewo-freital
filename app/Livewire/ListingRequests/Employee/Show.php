@@ -34,6 +34,12 @@ class Show extends Component
 
     public bool $showRejectModal = false;
 
+    public bool $showPrefillModal = false;
+
+    public array $prefillValues = [];
+
+    public array $lockedFields = [];
+
     public function mount(ListingRequest $listingRequest): void
     {
         Gate::authorize('view', $listingRequest);
@@ -153,9 +159,51 @@ class Show extends Component
         $this->listingRequest->update([
             'custom_form_id' => $formId ?: null,
             'custom_form_completed_at' => null, // Reset completion when changing form
+            'form_prefilled_values' => null,
+            'form_locked_fields' => null,
         ]);
 
         $this->listingRequest->refresh();
+    }
+
+    public function openPrefillModal(): void
+    {
+        if (! $this->listingRequest->customForm) {
+            return;
+        }
+
+        // Load existing prefilled values
+        $this->prefillValues = $this->listingRequest->form_prefilled_values ?? [];
+        $this->lockedFields = $this->listingRequest->form_locked_fields ?? [];
+
+        $this->showPrefillModal = true;
+    }
+
+    public function savePrefillValues(): void
+    {
+        Gate::authorize('update', $this->listingRequest);
+
+        // Filter out empty values
+        $values = array_filter($this->prefillValues, fn ($v) => $v !== '' && $v !== null);
+
+        $this->listingRequest->update([
+            'form_prefilled_values' => ! empty($values) ? $values : null,
+            'form_locked_fields' => ! empty($this->lockedFields) ? $this->lockedFields : null,
+        ]);
+
+        $this->showPrefillModal = false;
+        $this->listingRequest->refresh();
+
+        session()->flash('success', __('forms.prefill.saved'));
+    }
+
+    public function toggleFieldLock(string $fieldName): void
+    {
+        if (in_array($fieldName, $this->lockedFields)) {
+            $this->lockedFields = array_values(array_diff($this->lockedFields, [$fieldName]));
+        } else {
+            $this->lockedFields[] = $fieldName;
+        }
     }
 
     public function sendMessage(): void

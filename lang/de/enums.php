@@ -187,5 +187,6 @@ return [
         'number' => 'Zahl',
         'phone' => 'Telefon',
         'info' => 'Infotext',
+        'row' => 'Zeile (Layout)',
     ],
 ];

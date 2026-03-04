@@ -1,4 +1,4 @@
-@props(['field', 'name'])
+@props(['field', 'name', 'locked' => false])
 
 @php
     use App\Enums\FormFieldType;
@@ -12,10 +12,15 @@
                 @if ($field->is_required)
                     <span class="text-red-500">*</span>
                 @endif
+                @if ($locked)
+                    <flux:icon name="lock-closed" class="size-3 text-blue-500 inline ml-1" />
+                @endif
             </flux:label>
             <flux:input
                 type="text"
                 :placeholder="$field->placeholder"
+                :disabled="$locked"
+                :class="$locked ? 'bg-blue-50' : ''"
                 {{ $attributes }}
             />
             @break
@@ -26,10 +31,15 @@
                 @if ($field->is_required)
                     <span class="text-red-500">*</span>
                 @endif
+                @if ($locked)
+                    <flux:icon name="lock-closed" class="size-3 text-blue-500 inline ml-1" />
+                @endif
             </flux:label>
             <flux:input
                 type="email"
                 :placeholder="$field->placeholder"
+                :disabled="$locked"
+                :class="$locked ? 'bg-blue-50' : ''"
                 {{ $attributes }}
             />
             @break
@@ -40,10 +50,15 @@
                 @if ($field->is_required)
                     <span class="text-red-500">*</span>
                 @endif
+                @if ($locked)
+                    <flux:icon name="lock-closed" class="size-3 text-blue-500 inline ml-1" />
+                @endif
             </flux:label>
             <flux:textarea
                 :rows="$field->getConfig('rows', 4)"
                 :placeholder="$field->placeholder"
+                :disabled="$locked"
+                :class="$locked ? 'bg-blue-50' : ''"
                 {{ $attributes }}
             />
             @break
@@ -54,8 +69,11 @@
                 @if ($field->is_required)
                     <span class="text-red-500">*</span>
                 @endif
+                @if ($locked)
+                    <flux:icon name="lock-closed" class="size-3 text-blue-500 inline ml-1" />
+                @endif
             </flux:label>
-            <flux:select :placeholder="$field->placeholder ?? __('forms.field.select_placeholder')" {{ $attributes }}>
+            <flux:select :placeholder="$field->placeholder ?? __('forms.field.select_placeholder')" :disabled="$locked" {{ $attributes }}>
                 @foreach ($field->getConfig('options', []) as $option)
                     <flux:select.option :value="$option['value'] ?? $option['label']">
                         {{ $option['label'] }}
@@ -70,8 +88,11 @@
                 @if ($field->is_required)
                     <span class="text-red-500">*</span>
                 @endif
+                @if ($locked)
+                    <flux:icon name="lock-closed" class="size-3 text-blue-500 inline ml-1" />
+                @endif
             </flux:label>
-            <flux:radio.group {{ $attributes }}>
+            <flux:radio.group :disabled="$locked" {{ $attributes }}>
                 @foreach ($field->getConfig('options', []) as $option)
                     <flux:radio :value="$option['value'] ?? $option['label']" :label="$option['label']" />
                 @endforeach
@@ -79,10 +100,16 @@
             @break
 
         @case(FormFieldType::Checkbox)
-            <flux:checkbox
-                :label="$field->label"
-                {{ $attributes }}
-            />
+            <div class="flex items-center gap-2">
+                <flux:checkbox
+                    :label="$field->label"
+                    :disabled="$locked"
+                    {{ $attributes }}
+                />
+                @if ($locked)
+                    <flux:icon name="lock-closed" class="size-3 text-blue-500" />
+                @endif
+            </div>
             @break
 
         @case(FormFieldType::Date)
@@ -91,11 +118,16 @@
                 @if ($field->is_required)
                     <span class="text-red-500">*</span>
                 @endif
+                @if ($locked)
+                    <flux:icon name="lock-closed" class="size-3 text-blue-500 inline ml-1" />
+                @endif
             </flux:label>
             <flux:input
                 type="date"
                 :min="$field->getConfig('min_date')"
                 :max="$field->getConfig('max_date')"
+                :disabled="$locked"
+                :class="$locked ? 'bg-blue-50' : ''"
                 {{ $attributes }}
             />
             @break
@@ -105,6 +137,9 @@
                 {{ $field->label }}
                 @if ($field->is_required)
                     <span class="text-red-500">*</span>
+                @endif
+                @if ($locked)
+                    <flux:icon name="lock-closed" class="size-3 text-blue-500 inline ml-1" />
                 @endif
             </flux:label>
             <flux:input
@@ -133,6 +168,9 @@
                 @if ($field->is_required)
                     <span class="text-red-500">*</span>
                 @endif
+                @if ($locked)
+                    <flux:icon name="lock-closed" class="size-3 text-blue-500 inline ml-1" />
+                @endif
             </flux:label>
             <flux:input
                 type="number"
@@ -140,6 +178,8 @@
                 :max="$field->getConfig('max')"
                 :step="$field->getConfig('step', 1)"
                 :placeholder="$field->placeholder"
+                :disabled="$locked"
+                :class="$locked ? 'bg-blue-50' : ''"
                 {{ $attributes }}
             />
             @break
@@ -150,10 +190,15 @@
                 @if ($field->is_required)
                     <span class="text-red-500">*</span>
                 @endif
+                @if ($locked)
+                    <flux:icon name="lock-closed" class="size-3 text-blue-500 inline ml-1" />
+                @endif
             </flux:label>
             <flux:input
                 type="tel"
                 :placeholder="$field->placeholder"
+                :disabled="$locked"
+                :class="$locked ? 'bg-blue-50' : ''"
                 {{ $attributes }}
             />
             @break

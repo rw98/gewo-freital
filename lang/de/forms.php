@@ -142,6 +142,25 @@ return [
         'autofill_field' => 'Feld',
         'autofill_select_field' => 'Feld auswählen...',
         'autofill_description' => 'Felder können automatisch mit Daten aus Inseraten, Anfragen oder Wohnungen befüllt werden.',
+
+        // Row layout
+        'row_options' => 'Zeilen-Layout',
+        'row_columns' => 'Spalten',
+        'row_columns_description' => 'Definieren Sie die Spaltenaufteilung (1-3 Spalten).',
+        'row_add_column' => 'Spalte hinzufügen',
+        'row_remove_column' => 'Spalte entfernen',
+        'row_column' => 'Spalte :number',
+        'row_column_span' => 'Spaltenbreite',
+        'row_drop_field' => 'Feld hier ablegen',
+        'row_column_1' => '1 Spalte (volle Breite)',
+        'row_column_2' => '2 Spalten',
+        'row_column_3' => '3 Spalten',
+        'row_column_2_1' => '2 Spalten (2/3 + 1/3)',
+        'row_column_1_2' => '2 Spalten (1/3 + 2/3)',
+        'row_drag_hint' => 'Ziehen Sie Felder in die Spalten der Zeile, um sie zu positionieren.',
+        'columns_count' => '{1} Spalte|[2,*] Spalten',
+        'move_out_of_row' => 'Aus Zeile entfernen',
+        'max_nesting_reached' => 'Maximale Verschachtelungstiefe erreicht',
     ],
 
     // Dynamic Form
@@ -172,6 +191,17 @@ return [
     'no_form' => 'Kein Formular zugewiesen',
     'completed' => 'Ausgefüllt',
     'pending' => 'Ausstehend',
+
+    // Pre-fill
+    'prefill' => [
+        'button' => 'Felder vorausfüllen',
+        'title' => 'Formularfelder vorausfüllen',
+        'description' => 'Füllen Sie Felder im Voraus aus. Gesperrte Felder können vom Interessenten nicht geändert werden.',
+        'save' => 'Speichern',
+        'saved' => 'Vorausgefüllte Werte wurden gespeichert.',
+        'checked' => 'Aktiviert',
+        'locked_hint' => 'Dieses Feld ist für den Interessenten gesperrt.',
+    ],
 
     // AI Import
     'ai' => [

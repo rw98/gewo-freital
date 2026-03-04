@@ -15,6 +15,7 @@ enum FormFieldType: string
     case Number = 'number';
     case Phone = 'phone';
     case Info = 'info';
+    case Row = 'row';
 
     public function label(): string
     {
@@ -35,6 +36,7 @@ enum FormFieldType: string
             self::Number => 'hashtag',
             self::Phone => 'phone',
             self::Info => 'information-circle',
+            self::Row => 'view-columns',
         };
     }
 
@@ -55,6 +57,7 @@ enum FormFieldType: string
             self::Number => ['min' => null, 'max' => null, 'step' => 1],
             self::Phone => [],
             self::Info => ['style' => 'default', 'content' => ''],
+            self::Row => ['columns' => [1, 1, 1]], // Array of column spans (total should equal 3)
         };
     }
 
@@ -75,6 +78,23 @@ enum FormFieldType: string
             self::Number => ['numeric'],
             self::Phone => ['string', 'max:50'],
             self::Info => [],
+            self::Row => [],
         };
+    }
+
+    /**
+     * Check if this field type is a layout container.
+     */
+    public function isLayoutContainer(): bool
+    {
+        return $this === self::Row;
+    }
+
+    /**
+     * Check if this field type requires user input.
+     */
+    public function requiresInput(): bool
+    {
+        return ! in_array($this, [self::Info, self::Row]);
     }
 }

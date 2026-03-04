@@ -475,3 +475,236 @@ describe('auto-fill', function () {
             ->assertSet('values.name', '');
     });
 });
+
+describe('employee prefill', function () {
+    it('applies prefilled values from listing request', function () {
+        $listing = Listing::factory()->create();
+        $form = Form::factory()->create();
+
+        FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'name' => 'company_name',
+            'label' => 'Company Name',
+        ]);
+
+        FormField::factory()->forForm($form)->type(FormFieldType::Email)->create([
+            'name' => 'email',
+            'label' => 'Email',
+        ]);
+
+        $listingRequest = ListingRequest::factory()->create([
+            'listing_id' => $listing->id,
+            'custom_form_id' => $form->id,
+            'status' => ListingRequestStatus::WaitingForInformation,
+            'form_prefilled_values' => [
+                'company_name' => 'ACME Corp',
+                'email' => 'contact@acme.com',
+            ],
+        ]);
+
+        Livewire::test(DynamicForm::class, ['form' => $form, 'listingRequest' => $listingRequest])
+            ->assertSet('values.company_name', 'ACME Corp')
+            ->assertSet('values.email', 'contact@acme.com');
+    });
+
+    it('prefilled values override auto-fill values', function () {
+        $listing = Listing::factory()->create();
+        $form = Form::factory()->create();
+
+        FormField::factory()->forForm($form)->type(FormFieldType::Email)->create([
+            'name' => 'email',
+            'config' => [
+                'autofill_source' => 'listing_request',
+                'autofill_field' => 'email',
+            ],
+        ]);
+
+        $listingRequest = ListingRequest::factory()->create([
+            'listing_id' => $listing->id,
+            'custom_form_id' => $form->id,
+            'email' => 'original@example.com',
+            'status' => ListingRequestStatus::WaitingForInformation,
+            'form_prefilled_values' => [
+                'email' => 'prefilled@example.com',
+            ],
+        ]);
+
+        Livewire::test(DynamicForm::class, ['form' => $form, 'listingRequest' => $listingRequest])
+            ->assertSet('values.email', 'prefilled@example.com');
+    });
+
+    it('tracks locked fields from listing request', function () {
+        $listing = Listing::factory()->create();
+        $form = Form::factory()->create();
+
+        FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'name' => 'company_name',
+        ]);
+
+        $listingRequest = ListingRequest::factory()->create([
+            'listing_id' => $listing->id,
+            'custom_form_id' => $form->id,
+            'status' => ListingRequestStatus::WaitingForInformation,
+            'form_prefilled_values' => ['company_name' => 'ACME Corp'],
+            'form_locked_fields' => ['company_name'],
+        ]);
+
+        $component = Livewire::test(DynamicForm::class, ['form' => $form, 'listingRequest' => $listingRequest]);
+
+        expect($component->instance()->isFieldLocked('company_name'))->toBeTrue();
+        expect($component->instance()->isFieldLocked('other_field'))->toBeFalse();
+    });
+
+    it('renders locked field with disabled state', function () {
+        $listing = Listing::factory()->create();
+        $form = Form::factory()->create();
+
+        FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'name' => 'company_name',
+            'label' => 'Company Name',
+        ]);
+
+        $listingRequest = ListingRequest::factory()->create([
+            'listing_id' => $listing->id,
+            'custom_form_id' => $form->id,
+            'status' => ListingRequestStatus::WaitingForInformation,
+            'form_prefilled_values' => ['company_name' => 'ACME Corp'],
+            'form_locked_fields' => ['company_name'],
+        ]);
+
+        $component = Livewire::test(DynamicForm::class, ['form' => $form, 'listingRequest' => $listingRequest])
+            ->assertSee('Company Name')
+            ->assertSet('lockedFields', ['company_name']);
+
+        // Verify the component correctly identifies locked fields
+        expect($component->instance()->isFieldLocked('company_name'))->toBeTrue();
+    });
+});
+
+describe('row layout', function () {
+    it('renders fields inside a row', function () {
+        $form = Form::factory()->create();
+
+        // Create a row
+        $row = FormField::factory()->forForm($form)->type(FormFieldType::Row)->create([
+            'name' => 'row_1',
+            'config' => ['columns' => [1, 1]],
+            'order' => 0,
+        ]);
+
+        // Create fields inside the row
+        FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'name' => 'first_name',
+            'label' => 'First Name',
+            'parent_id' => $row->id,
+            'column_index' => 0,
+            'order' => 0,
+        ]);
+
+        FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'name' => 'last_name',
+            'label' => 'Last Name',
+            'parent_id' => $row->id,
+            'column_index' => 1,
+            'order' => 0,
+        ]);
+
+        Livewire::test(DynamicForm::class, ['form' => $form])
+            ->assertSee('First Name')
+            ->assertSee('Last Name');
+    });
+
+    it('initializes values for fields inside rows', function () {
+        $form = Form::factory()->create();
+
+        $row = FormField::factory()->forForm($form)->type(FormFieldType::Row)->create([
+            'config' => ['columns' => [1, 1]],
+        ]);
+
+        FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'name' => 'nested_field',
+            'parent_id' => $row->id,
+            'column_index' => 0,
+        ]);
+
+        $component = Livewire::test(DynamicForm::class, ['form' => $form]);
+
+        expect($component->instance()->values)->toHaveKey('nested_field');
+    });
+
+    it('validates fields inside rows', function () {
+        $form = Form::factory()->create();
+
+        $row = FormField::factory()->forForm($form)->type(FormFieldType::Row)->create([
+            'config' => ['columns' => [1]],
+        ]);
+
+        FormField::factory()->forForm($form)->type(FormFieldType::Text)->required()->create([
+            'name' => 'required_nested',
+            'label' => 'Required Field',
+            'parent_id' => $row->id,
+            'column_index' => 0,
+        ]);
+
+        Livewire::test(DynamicForm::class, ['form' => $form])
+            ->set('values.required_nested', '')
+            ->call('submit')
+            ->assertHasErrors(['values.required_nested']);
+    });
+
+    it('submits form with nested field values', function () {
+        $form = Form::factory()->create();
+
+        $row = FormField::factory()->forForm($form)->type(FormFieldType::Row)->create([
+            'config' => ['columns' => [1, 1]],
+        ]);
+
+        FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'name' => 'col1_field',
+            'parent_id' => $row->id,
+            'column_index' => 0,
+        ]);
+
+        FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'name' => 'col2_field',
+            'parent_id' => $row->id,
+            'column_index' => 1,
+        ]);
+
+        Livewire::test(DynamicForm::class, ['form' => $form])
+            ->set('values.col1_field', 'Value 1')
+            ->set('values.col2_field', 'Value 2')
+            ->call('submit')
+            ->assertSet('submitted', true);
+
+        $response = FormResponse::first();
+        expect($response->fieldValues)->toHaveCount(2);
+
+        $col1Value = $response->fieldValues->firstWhere('value', 'Value 1');
+        $col2Value = $response->fieldValues->firstWhere('value', 'Value 2');
+
+        expect($col1Value)->not->toBeNull();
+        expect($col2Value)->not->toBeNull();
+    });
+
+    it('does not create values for row fields', function () {
+        $form = Form::factory()->create();
+
+        $row = FormField::factory()->forForm($form)->type(FormFieldType::Row)->create([
+            'name' => 'my_row',
+            'config' => ['columns' => [1]],
+        ]);
+
+        FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'name' => 'text_field',
+            'parent_id' => $row->id,
+            'column_index' => 0,
+        ]);
+
+        $component = Livewire::test(DynamicForm::class, ['form' => $form]);
+
+        // Row should not have a value entry
+        expect($component->instance()->values)->not->toHaveKey('my_row');
+        // But text field should
+        expect($component->instance()->values)->toHaveKey('text_field');
+    });
+});

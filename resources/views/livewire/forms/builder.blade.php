@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-zinc-100 dark:bg-zinc-900">
+<div class="min-h-screen bg-zinc-100 dark:bg-zinc-900" x-data="{ addToRow: null, addToColumn: 0 }">
     {{-- Toolbar --}}
     <header class="sticky top-0 z-50 bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700">
         <div class="flex items-center justify-between h-14 px-4">
@@ -110,7 +110,7 @@
 
                 {{-- Fields --}}
                 <flux:card class="overflow-hidden">
-                    @if ($form->fields->isEmpty())
+                    @if ($this->topLevelFields->isEmpty())
                         <div class="p-12 text-center">
                             <flux:icon name="list-bullet" class="size-12 text-zinc-300 mx-auto" />
                             <flux:heading size="lg" class="mt-4">{{ __('forms.builder.empty.title') }}</flux:heading>
@@ -118,60 +118,14 @@
                         </div>
                     @else
                         <div class="divide-y divide-zinc-200 dark:divide-zinc-700" wire:sort="handleSort">
-                            @foreach ($form->fields as $field)
-                                <div
-                                    wire:key="field-{{ $field->id }}"
-                                    wire:sort:item="{{ $field->id }}"
-                                    class="group p-4 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors {{ $selectedFieldId === $field->id ? 'bg-accent/5 ring-2 ring-accent ring-inset' : '' }}"
-                                >
-                                    <div class="flex items-start gap-4">
-                                        {{-- Drag handle --}}
-                                        <div wire:sort:handle class="cursor-move text-zinc-400 hover:text-zinc-600 mt-1">
-                                            <flux:icon name="bars-3" class="size-5" />
-                                        </div>
-
-                                        {{-- Field info --}}
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center gap-2">
-                                                <flux:icon :name="$field->type->icon()" class="size-4 text-zinc-500" />
-                                                <flux:text class="font-medium">{{ $field->label }}</flux:text>
-                                                @if ($field->is_required)
-                                                    <flux:badge size="sm" color="red">{{ __('forms.builder.required') }}</flux:badge>
-                                                @endif
-                                            </div>
-                                            <flux:text size="sm" class="text-zinc-500 mt-1">
-                                                {{ $field->type->label() }}
-                                                @if ($field->description)
-                                                    &middot; {{ Str::limit($field->description, 40) }}
-                                                @endif
-                                            </flux:text>
-                                        </div>
-
-                                        {{-- Actions --}}
-                                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <flux:button
-                                                variant="ghost"
-                                                size="xs"
-                                                icon="pencil"
-                                                wire:click="selectField('{{ $field->id }}')"
-                                            />
-                                            <flux:button
-                                                variant="ghost"
-                                                size="xs"
-                                                icon="document-duplicate"
-                                                wire:click="duplicateField('{{ $field->id }}')"
-                                            />
-                                            <flux:button
-                                                variant="ghost"
-                                                size="xs"
-                                                icon="trash"
-                                                class="text-red-500 hover:text-red-600"
-                                                wire:click="deleteField('{{ $field->id }}')"
-                                                wire:confirm="{{ __('forms.builder.confirm_delete_field') }}"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+                            @foreach ($this->topLevelFields as $field)
+                                @if ($field->type->value === 'row')
+                                    {{-- Row Layout --}}
+                                    @include('livewire.forms.partials.row-field', ['row' => $field])
+                                @else
+                                    {{-- Regular Field --}}
+                                    @include('livewire.forms.partials.field-item', ['field' => $field])
+                                @endif
                             @endforeach
                         </div>
                     @endif
@@ -198,38 +152,42 @@
                         </div>
 
                         <div class="space-y-4">
-                            <flux:input
-                                wire:model.live.debounce.500ms="editingField.label"
-                                :label="__('forms.builder.field_label')"
-                            />
+                            @if ($selectedField->type->value !== 'row')
+                                <flux:input
+                                    wire:model.live.debounce.500ms="editingField.label"
+                                    :label="__('forms.builder.field_label')"
+                                />
 
-                            <flux:input
-                                wire:model.live.debounce.500ms="editingField.name"
-                                :label="__('forms.builder.field_name')"
-                                :description="__('forms.builder.field_name_description')"
-                            />
+                                <flux:input
+                                    wire:model.live.debounce.500ms="editingField.name"
+                                    :label="__('forms.builder.field_name')"
+                                    :description="__('forms.builder.field_name_description')"
+                                />
 
-                            <flux:textarea
-                                wire:model.live.debounce.500ms="editingField.description"
-                                :label="__('forms.builder.field_description')"
-                                rows="2"
-                            />
+                                <flux:textarea
+                                    wire:model.live.debounce.500ms="editingField.description"
+                                    :label="__('forms.builder.field_description')"
+                                    rows="2"
+                                />
 
-                            <flux:input
-                                wire:model.live.debounce.500ms="editingField.placeholder"
-                                :label="__('forms.builder.field_placeholder')"
-                            />
+                                @if ($selectedField->type->requiresInput())
+                                    <flux:input
+                                        wire:model.live.debounce.500ms="editingField.placeholder"
+                                        :label="__('forms.builder.field_placeholder')"
+                                    />
 
-                            <flux:checkbox
-                                wire:model.live="editingField.is_required"
-                                :label="__('forms.builder.field_required')"
-                            />
+                                    <flux:checkbox
+                                        wire:model.live="editingField.is_required"
+                                        :label="__('forms.builder.field_required')"
+                                    />
+                                @endif
+                            @endif
 
                             {{-- Type-specific config --}}
                             @include('livewire.forms.editors.'.$selectedField->type->value, ['field' => $selectedField])
 
-                            {{-- Auto-fill config (not for info fields) --}}
-                            @if ($selectedField->type->value !== 'info')
+                            {{-- Auto-fill config (only for input fields) --}}
+                            @if ($selectedField->type->requiresInput())
                                 @include('livewire.forms.editors.autofill', [
                                     'sourceTypes' => $this->autoFillSourceTypes,
                                     'sourceFields' => $this->autoFillSourceFields,
@@ -250,7 +208,8 @@
             <div class="space-y-2">
                 @foreach ($this->fieldTypes as $type)
                     <button
-                        wire:click="addField('{{ $type->value }}')"
+                        wire:click="addField('{{ $type->value }}', addToRow, addToColumn)"
+                        x-on:click="addToRow = null; addToColumn = 0"
                         class="flex items-center gap-3 w-full p-3 rounded-lg border border-zinc-200 dark:border-zinc-600 hover:border-accent hover:bg-accent/5 transition-colors text-left"
                     >
                         <flux:icon :name="$type->icon()" class="size-5 text-zinc-600 dark:text-zinc-400" />
@@ -262,7 +221,7 @@
             </div>
 
             <div class="flex justify-end mt-6">
-                <flux:button variant="ghost" wire:click="$set('showFieldPicker', false)">
+                <flux:button variant="ghost" wire:click="$set('showFieldPicker', false)" x-on:click="addToRow = null; addToColumn = 0">
                     {{ __('forms.builder.cancel') }}
                 </flux:button>
             </div>

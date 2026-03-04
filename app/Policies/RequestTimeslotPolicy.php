@@ -26,6 +26,10 @@ class RequestTimeslotPolicy
      */
     public function viewAny(User $user): bool
     {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
         return true;
     }
 
@@ -34,6 +38,10 @@ class RequestTimeslotPolicy
      */
     public function view(User $user, RequestTimeslot $requestTimeslot): bool
     {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
         return $this->canManageListing($user, $requestTimeslot->listing);
     }
 
@@ -50,6 +58,10 @@ class RequestTimeslotPolicy
      */
     public function update(User $user, RequestTimeslot $requestTimeslot): bool
     {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
         return $this->canManageListing($user, $requestTimeslot->listing);
     }
 
@@ -58,6 +70,10 @@ class RequestTimeslotPolicy
      */
     public function delete(User $user, RequestTimeslot $requestTimeslot): bool
     {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
         return $this->canManageListing($user, $requestTimeslot->listing);
     }
 

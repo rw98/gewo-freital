@@ -93,16 +93,20 @@ class Builder extends Component
         $this->editingField = [];
     }
 
-    public function addField(string $type): void
+    public function addField(string $type, ?string $parentId = null, int $columnIndex = 0): void
     {
         $fieldType = FormFieldType::from($type);
 
         $maxOrder = FormField::query()
             ->where('form_id', $this->form->id)
+            ->where('parent_id', $parentId)
+            ->when($parentId !== null, fn ($q) => $q->where('column_index', $columnIndex))
             ->max('order') ?? -1;
 
         $field = FormField::create([
             'form_id' => $this->form->id,
+            'parent_id' => $parentId,
+            'column_index' => $columnIndex,
             'type' => $fieldType,
             'name' => Str::snake($fieldType->label()).'_'.Str::random(4),
             'label' => $fieldType->label(),
@@ -115,6 +119,11 @@ class Builder extends Component
         $this->showFieldPicker = false;
         $this->selectField($field->id);
         $this->refreshForm();
+    }
+
+    public function addFieldToRow(string $rowId, int $columnIndex): void
+    {
+        $this->dispatch('open-field-picker', rowId: $rowId, columnIndex: $columnIndex);
     }
 
     public function updateField(string $fieldId): void
@@ -174,26 +183,36 @@ class Builder extends Component
         $this->refreshForm();
     }
 
-    public function handleSort(string $id, int $position): void
+    public function handleSort(string $id, int $position, ?string $parentId = null, int $columnIndex = 0): void
     {
         $field = FormField::find($id);
         if (! $field || $field->form_id !== $this->form->id) {
             return;
         }
 
-        $currentOrder = $field->order;
+        // Update parent and column if moving to a different location
+        $parentChanged = $field->parent_id !== $parentId || $field->column_index !== $columnIndex;
 
-        if ($position === $currentOrder) {
-            return;
+        if ($parentChanged) {
+            $field->update([
+                'parent_id' => $parentId,
+                'column_index' => $columnIndex,
+            ]);
         }
 
-        $fields = FormField::query()
+        // Get fields in the target location
+        $query = FormField::query()
             ->where('form_id', $this->form->id)
-            ->orderBy('order')
-            ->get();
+            ->where('parent_id', $parentId);
+
+        if ($parentId !== null) {
+            $query->where('column_index', $columnIndex);
+        }
+
+        $fields = $query->orderBy('order')->get();
 
         $reordered = $fields->reject(fn ($f) => $f->id === $id)->values();
-        $reordered->splice($position, 0, [$field]);
+        $reordered->splice($position, 0, [$field->fresh()]);
 
         foreach ($reordered as $index => $f) {
             if ($f->order !== $index) {
@@ -203,6 +222,101 @@ class Builder extends Component
 
         $this->form->touch();
         $this->refreshForm();
+    }
+
+    public function moveFieldToColumn(string $fieldId, string $rowId, int $columnIndex): void
+    {
+        $field = FormField::find($fieldId);
+        $row = FormField::find($rowId);
+
+        if (! $field || ! $row || $field->form_id !== $this->form->id) {
+            return;
+        }
+
+        // Don't allow moving a row into itself or its children
+        if ($field->type === FormFieldType::Row && $this->isDescendant($field, $row)) {
+            return;
+        }
+
+        $maxOrder = FormField::query()
+            ->where('form_id', $this->form->id)
+            ->where('parent_id', $rowId)
+            ->where('column_index', $columnIndex)
+            ->max('order') ?? -1;
+
+        $field->update([
+            'parent_id' => $rowId,
+            'column_index' => $columnIndex,
+            'order' => $maxOrder + 1,
+        ]);
+
+        $this->form->touch();
+        $this->refreshForm();
+    }
+
+    public function moveFieldOutOfRow(string $fieldId): void
+    {
+        $field = FormField::find($fieldId);
+
+        if (! $field || $field->form_id !== $this->form->id) {
+            return;
+        }
+
+        $maxOrder = FormField::query()
+            ->where('form_id', $this->form->id)
+            ->whereNull('parent_id')
+            ->max('order') ?? -1;
+
+        $field->update([
+            'parent_id' => null,
+            'column_index' => 0,
+            'order' => $maxOrder + 1,
+        ]);
+
+        $this->form->touch();
+        $this->refreshForm();
+    }
+
+    private function isDescendant(FormField $ancestor, FormField $field): bool
+    {
+        if ($field->parent_id === null) {
+            return false;
+        }
+
+        if ($field->parent_id === $ancestor->id) {
+            return true;
+        }
+
+        $parent = FormField::find($field->parent_id);
+
+        return $parent ? $this->isDescendant($ancestor, $parent) : false;
+    }
+
+    public function updateRowColumns(string $fieldId, array $columns): void
+    {
+        $field = FormField::find($fieldId);
+        if (! $field || $field->form_id !== $this->form->id || $field->type !== FormFieldType::Row) {
+            return;
+        }
+
+        $config = $field->config ?? [];
+        $config['columns'] = $columns;
+
+        $field->update(['config' => $config]);
+
+        // Move fields from removed columns to the last available column
+        $columnCount = count($columns);
+        FormField::query()
+            ->where('parent_id', $fieldId)
+            ->where('column_index', '>=', $columnCount)
+            ->update(['column_index' => $columnCount - 1]);
+
+        $this->form->touch();
+        $this->refreshForm();
+
+        if ($this->selectedFieldId === $fieldId) {
+            $this->editingField['config'] = $config;
+        }
     }
 
     public function toggleRequired(string $fieldId): void
@@ -274,10 +388,19 @@ class Builder extends Component
         $this->dispatch('copy-to-clipboard', url: $this->form->getPublicUrl());
     }
 
+    #[Computed]
+    public function topLevelFields()
+    {
+        return $this->form->fields
+            ->whereNull('parent_id')
+            ->sortBy('order')
+            ->values();
+    }
+
     private function refreshForm(): void
     {
         $this->form->refresh();
-        $this->form->load('fields');
+        $this->form->load(['fields', 'fields.children']);
     }
 
     public function render(): View

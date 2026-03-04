@@ -314,3 +314,150 @@ describe('select field options', function () {
         expect($field->getConfig('multiple'))->toBeFalse();
     });
 });
+
+describe('row layout builder', function () {
+    it('can add a row field', function () {
+        $user = User::factory()->create();
+        $form = Form::factory()->forUser($user)->create();
+
+        Livewire::actingAs($user)
+            ->test(Builder::class, ['form' => $form])
+            ->call('addField', 'row');
+
+        expect($form->refresh()->fields)->toHaveCount(1);
+        expect($form->fields->first()->type)->toBe(FormFieldType::Row);
+        expect($form->fields->first()->getConfig('columns'))->toBe([1, 1, 1]);
+    });
+
+    it('can add a field to a row column', function () {
+        $user = User::factory()->create();
+        $form = Form::factory()->forUser($user)->create();
+        $row = FormField::factory()->forForm($form)->type(FormFieldType::Row)->create();
+
+        Livewire::actingAs($user)
+            ->test(Builder::class, ['form' => $form])
+            ->call('addField', 'text', $row->id, 1);
+
+        $form->refresh();
+        $textField = $form->fields->firstWhere('type', FormFieldType::Text);
+
+        expect($textField)->not->toBeNull();
+        expect($textField->parent_id)->toBe($row->id);
+        expect($textField->column_index)->toBe(1);
+    });
+
+    it('can move a field into a row column', function () {
+        $user = User::factory()->create();
+        $form = Form::factory()->forUser($user)->create();
+        $row = FormField::factory()->forForm($form)->type(FormFieldType::Row)->create();
+        $textField = FormField::factory()->forForm($form)->type(FormFieldType::Text)->create();
+
+        Livewire::actingAs($user)
+            ->test(Builder::class, ['form' => $form])
+            ->call('moveFieldToColumn', $textField->id, $row->id, 2);
+
+        $textField->refresh();
+        expect($textField->parent_id)->toBe($row->id);
+        expect($textField->column_index)->toBe(2);
+    });
+
+    it('can move a field out of a row', function () {
+        $user = User::factory()->create();
+        $form = Form::factory()->forUser($user)->create();
+        $row = FormField::factory()->forForm($form)->type(FormFieldType::Row)->create();
+        $textField = FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'parent_id' => $row->id,
+            'column_index' => 1,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(Builder::class, ['form' => $form])
+            ->call('moveFieldOutOfRow', $textField->id);
+
+        $textField->refresh();
+        expect($textField->parent_id)->toBeNull();
+        expect($textField->column_index)->toBe(0);
+    });
+
+    it('can update row column configuration', function () {
+        $user = User::factory()->create();
+        $form = Form::factory()->forUser($user)->create();
+        $row = FormField::factory()->forForm($form)->type(FormFieldType::Row)->create([
+            'config' => ['columns' => [1, 1, 1]],
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(Builder::class, ['form' => $form])
+            ->call('updateRowColumns', $row->id, [2, 1]);
+
+        $row->refresh();
+        expect($row->getConfig('columns'))->toBe([2, 1]);
+    });
+
+    it('moves fields to last column when columns are reduced', function () {
+        $user = User::factory()->create();
+        $form = Form::factory()->forUser($user)->create();
+        $row = FormField::factory()->forForm($form)->type(FormFieldType::Row)->create([
+            'config' => ['columns' => [1, 1, 1]],
+        ]);
+        $textField = FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'parent_id' => $row->id,
+            'column_index' => 2, // Third column
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(Builder::class, ['form' => $form])
+            ->call('updateRowColumns', $row->id, [1, 1]); // Reduce to 2 columns
+
+        $textField->refresh();
+        expect($textField->column_index)->toBe(1); // Moved to last available column
+    });
+
+    it('deleting a row also deletes its children', function () {
+        $user = User::factory()->create();
+        $form = Form::factory()->forUser($user)->create();
+        $row = FormField::factory()->forForm($form)->type(FormFieldType::Row)->create();
+        FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'parent_id' => $row->id,
+            'column_index' => 0,
+        ]);
+        FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'parent_id' => $row->id,
+            'column_index' => 1,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(Builder::class, ['form' => $form])
+            ->call('deleteField', $row->id);
+
+        expect($form->refresh()->fields)->toHaveCount(0);
+    });
+
+    it('row field type has correct properties', function () {
+        $rowType = FormFieldType::Row;
+
+        expect($rowType->isLayoutContainer())->toBeTrue();
+        expect($rowType->requiresInput())->toBeFalse();
+        expect($rowType->icon())->toBe('view-columns');
+        expect($rowType->defaultConfig())->toHaveKey('columns');
+    });
+
+    it('field parent and children relationships work', function () {
+        $form = Form::factory()->create();
+        $row = FormField::factory()->forForm($form)->type(FormFieldType::Row)->create();
+        $child1 = FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'parent_id' => $row->id,
+            'column_index' => 0,
+            'order' => 0,
+        ]);
+        $child2 = FormField::factory()->forForm($form)->type(FormFieldType::Text)->create([
+            'parent_id' => $row->id,
+            'column_index' => 1,
+            'order' => 0,
+        ]);
+
+        expect($row->children)->toHaveCount(2);
+        expect($child1->parent->id)->toBe($row->id);
+        expect($child2->parent->id)->toBe($row->id);
+    });
+});
