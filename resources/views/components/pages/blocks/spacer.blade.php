@@ -12,7 +12,7 @@
     };
 @endphp
 
-<div class="{{ $heightClass }} {{ $preview ? 'bg-zinc-100 dark:bg-zinc-700 rounded border-2 border-dashed border-zinc-300 dark:border-zinc-600' : '' }}">
+<div class="{{ $heightClass }} {{ $preview ? 'rounded border-2 border-dashed border-zinc-300 dark:border-zinc-600' : '' }}">
     @if ($preview)
         <div class="flex items-center justify-center h-full text-zinc-400 text-xs">
             {{ __('pages.blocks.spacer.label', ['height' => $height]) }}

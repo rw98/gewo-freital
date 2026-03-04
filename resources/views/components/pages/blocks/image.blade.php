@@ -9,7 +9,7 @@
 @if ($preview && empty($src))
     {{-- Empty state with inline URL input --}}
     <div
-        class="flex flex-col items-center justify-center h-40 bg-zinc-100 dark:bg-zinc-700 rounded-lg cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
+        class="flex flex-col items-center justify-center h-40 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600 cursor-pointer hover:border-accent transition-colors"
         x-data="{
             editing: false,
             url: '',
@@ -79,7 +79,7 @@
             </div>
 
             {{-- URL input for editing --}}
-            <div x-show="editing" class="p-4 bg-zinc-100 dark:bg-zinc-700 rounded-lg" x-on:click.stop>
+            <div x-show="editing" class="p-4 rounded-lg border border-zinc-200 dark:border-zinc-700" x-on:click.stop>
                 <flux:input
                     x-ref="urlInput"
                     x-model="url"

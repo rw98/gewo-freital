@@ -22,6 +22,7 @@ class Page extends Model
         'meta_keywords',
         'status',
         'layout',
+        'navbar_settings',
         'created_by',
         'updated_by',
         'published_at',
@@ -30,13 +31,51 @@ class Page extends Model
     /**
      * @return array<string, string>
      */
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
             'status' => PageStatus::class,
             'layout' => PageLayout::class,
+            'navbar_settings' => 'array',
             'published_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the navbar items for this page.
+     *
+     * @return array<int, array{href: string, label: string, icon?: string}>
+     */
+    public function getNavbarItems(): array
+    {
+        $settings = $this->navbar_settings ?? [];
+        $items = $settings['items'] ?? [];
+
+        return collect($items)->map(function ($item) {
+            // If it's a page reference, resolve the URL
+            if (isset($item['page_id'])) {
+                $page = self::find($item['page_id']);
+                if ($page && $page->isPublished()) {
+                    return [
+                        'href' => route('pages.show', $page->slug),
+                        'label' => $item['label'] ?? $page->title,
+                        'icon' => $item['icon'] ?? null,
+                    ];
+                }
+
+                return null;
+            }
+
+            // External or custom URL
+            return [
+                'href' => $item['url'] ?? '#',
+                'label' => $item['label'] ?? '',
+                'icon' => $item['icon'] ?? null,
+            ];
+        })->filter()->values()->toArray();
     }
 
     /**

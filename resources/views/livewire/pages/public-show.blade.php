@@ -1,10 +1,7 @@
 @php
-    // Optimized for 15" laptops (~1440px screens)
     $layoutClasses = match ($page->layout->value) {
-        'full_width' => 'max-w-6xl',   // 1152px
         'sidebar' => 'max-w-5xl',       // 1024px
-        'landing' => 'max-w-5xl',       // 1024px
-        default => 'max-w-4xl',         // 896px - good for text-heavy content
+        default => 'max-w-6xl',         // 1152px
     };
 @endphp
 

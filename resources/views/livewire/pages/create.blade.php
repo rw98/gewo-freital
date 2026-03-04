@@ -56,7 +56,7 @@
             <div class="space-y-4">
                 <div class="flex gap-2">
                     <flux:input
-                        wire:model="importUrl"
+                        wire:model.live="importUrl"
                         type="url"
                         :placeholder="__('pages.create.import_url_placeholder')"
                         class="flex-1"
@@ -98,19 +98,33 @@
                     </flux:callout>
 
                     {{-- Preview imported blocks --}}
-                    <div class="border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 max-h-64 overflow-y-auto">
+                    <div class="border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 max-h-80 overflow-y-auto">
                         <flux:text size="sm" class="text-zinc-500 mb-2">{{ __('pages.create.import_preview') }}</flux:text>
                         <div class="space-y-2">
                             @foreach ($importedBlocks as $index => $block)
                                 <div class="flex items-center gap-2 text-sm">
-                                    <span class="text-zinc-400">{{ $index + 1 }}.</span>
-                                    <flux:badge size="sm">{{ $block['type'] }}</flux:badge>
-                                    @if (isset($block['content']['text']))
+                                    <span class="text-zinc-400 shrink-0">{{ $index + 1 }}.</span>
+                                    <flux:badge size="sm" class="shrink-0">{{ $block['type'] }}</flux:badge>
+                                    @if ($block['type'] === 'image' && !empty($block['content']['src']))
+                                        <img
+                                            src="{{ $block['content']['src'] }}"
+                                            alt="{{ $block['content']['alt'] ?? '' }}"
+                                            class="h-8 w-12 object-cover rounded shrink-0"
+                                            onerror="this.style.display='none'"
+                                        />
+                                        <span class="truncate text-zinc-600 dark:text-zinc-400">{{ $block['content']['alt'] ?: Str::limit($block['content']['src'], 40) }}</span>
+                                    @elseif (isset($block['content']['text']))
                                         <span class="truncate text-zinc-600 dark:text-zinc-400">{{ Str::limit($block['content']['text'], 50) }}</span>
                                     @elseif (isset($block['content']['heading']))
                                         <span class="truncate text-zinc-600 dark:text-zinc-400">{{ Str::limit($block['content']['heading'], 50) }}</span>
                                     @elseif (isset($block['content']['title']))
                                         <span class="truncate text-zinc-600 dark:text-zinc-400">{{ Str::limit($block['content']['title'], 50) }}</span>
+                                    @elseif (isset($block['content']['html']))
+                                        <span class="truncate text-zinc-600 dark:text-zinc-400">{{ Str::limit(strip_tags($block['content']['html']), 50) }}</span>
+                                    @elseif ($block['type'] === 'table' && isset($block['content']['headers']))
+                                        <span class="text-zinc-600 dark:text-zinc-400">{{ count($block['content']['headers']) }} {{ __('pages.create.columns') }}, {{ count($block['content']['rows'] ?? []) }} {{ __('pages.create.rows') }}</span>
+                                    @elseif (in_array($block['type'], ['grid', 'columns']) && !empty($block['children']))
+                                        <span class="text-zinc-600 dark:text-zinc-400">{{ $block['content']['columns'] ?? 2 }} {{ __('pages.create.columns') }}, {{ count($block['children']) }} {{ __('pages.create.children') }}</span>
                                     @endif
                                 </div>
                             @endforeach

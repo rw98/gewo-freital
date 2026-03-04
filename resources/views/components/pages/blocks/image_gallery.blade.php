@@ -5,7 +5,7 @@
 @endphp
 
 @if (empty($images) && $preview)
-    <div class="flex flex-col items-center justify-center h-40 bg-zinc-100 dark:bg-zinc-700 rounded-lg">
+    <div class="flex flex-col items-center justify-center h-40 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600">
         <flux:icon name="squares-2x2" class="size-8 text-zinc-400" />
         <span class="text-zinc-400 text-sm mt-2">{{ __('pages.blocks.image_gallery.placeholder') }}</span>
     </div>

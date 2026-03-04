@@ -1,11 +1,5 @@
 <x-layouts.public
     :title="__('pages.landing.meta.title')"
-    :nav-items="[
-        ['href' => route('listings.index'), 'icon' => 'home', 'label' => __('pages.landing.header.nav.rent')],
-        ['href' => '#service', 'icon' => 'wrench-screwdriver', 'label' => __('pages.landing.header.nav.service')],
-        ['href' => '#ueber-uns', 'icon' => 'building-office-2', 'label' => __('pages.landing.header.nav.about')],
-        ['href' => '#kontakt', 'icon' => 'phone', 'label' => __('pages.landing.header.nav.contact')],
-    ]"
 >
     {{-- Hero Section --}}
     <section class="relative bg-linear-to-br from-gewo-blue-50 to-white overflow-hidden">

@@ -7,6 +7,10 @@
                 <flux:navlist.item :href="route('two-factor.show')" wire:navigate>{{ __('Two-factor auth') }}</flux:navlist.item>
             @endif
             <flux:navlist.item :href="route('appearance.edit')" wire:navigate>{{ __('Appearance') }}</flux:navlist.item>
+            @can('manage-pages')
+                <flux:navlist.item :href="route('settings.navbar')" wire:navigate>{{ __('Navigation') }}</flux:navlist.item>
+                <flux:navlist.item :href="route('settings.branding')" wire:navigate>{{ __('Branding') }}</flux:navlist.item>
+            @endcan
         </flux:navlist>
     </div>
 

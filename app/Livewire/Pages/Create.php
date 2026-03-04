@@ -90,11 +90,14 @@ class Create extends Component
             // Fetch content from URL
             $content = $importService->fetchContent($this->importUrl);
 
-            // Generate blocks using AI
+            // Generate blocks using AI (including images, tables, and layout structure)
             $this->importedBlocks = $importService->generateBlocks(
                 $content['content'],
                 $content['title'],
-                $content['url']
+                $content['url'],
+                $content['images'] ?? [],
+                $content['tables'] ?? [],
+                $content['layoutSections'] ?? []
             );
 
             // Set title from imported content if empty
@@ -153,39 +156,44 @@ class Create extends Component
 
         // Apply imported blocks if available
         if (! empty($this->importedBlocks)) {
-            foreach ($this->importedBlocks as $index => $blockData) {
-                $blockType = BlockType::from($blockData['type']);
-
-                PageBlock::create([
-                    'page_id' => $page->id,
-                    'type' => $blockType,
-                    'content' => $blockData['content'] ?? $blockType->defaultContent(),
-                    'settings' => $blockData['settings'] ?? $blockType->defaultSettings(),
-                    'order' => $index,
-                    'column_span' => $blockData['column_span'] ?? 12,
-                ]);
-            }
+            $this->createBlocksRecursively($page, $this->importedBlocks);
         }
         // Apply template if selected (and no imported blocks)
         elseif ($this->templateId) {
             $template = PageTemplate::find($this->templateId);
             if ($template) {
-                foreach ($template->structure as $index => $blockData) {
-                    $blockType = BlockType::from($blockData['type']);
-
-                    PageBlock::create([
-                        'page_id' => $page->id,
-                        'type' => $blockType,
-                        'content' => $blockData['content'] ?? $blockType->defaultContent(),
-                        'settings' => $blockData['settings'] ?? $blockType->defaultSettings(),
-                        'order' => $index,
-                        'column_span' => $blockData['column_span'] ?? 12,
-                    ]);
-                }
+                $this->createBlocksRecursively($page, $template->structure);
             }
         }
 
         $this->redirect(route('pages.builder', $page), navigate: true);
+    }
+
+    /**
+     * Recursively create blocks with their children.
+     *
+     * @param  array<int, array<string, mixed>>  $blocksData
+     */
+    private function createBlocksRecursively(Page $page, array $blocksData, ?string $parentId = null): void
+    {
+        foreach ($blocksData as $index => $blockData) {
+            $blockType = BlockType::from($blockData['type']);
+
+            $block = PageBlock::create([
+                'page_id' => $page->id,
+                'parent_id' => $parentId,
+                'type' => $blockType,
+                'content' => $blockData['content'] ?? $blockType->defaultContent(),
+                'settings' => $blockData['settings'] ?? $blockType->defaultSettings(),
+                'order' => $index,
+                'column_span' => $blockData['column_span'] ?? 12,
+            ]);
+
+            // Recursively create children if present
+            if (! empty($blockData['children']) && is_array($blockData['children'])) {
+                $this->createBlocksRecursively($page, $blockData['children'], $block->id);
+            }
+        }
     }
 
     public function render(): View

@@ -20,10 +20,19 @@
     class="grid {{ $gridClasses }} gap-{{ $gap }} transition-colors"
     @if ($preview)
         data-grid-drop
-        x-on:dragover.prevent.stop="dragOverTarget = 'grid-{{ $block->id }}'; $event.dataTransfer.dropEffect = 'copy'"
+        x-on:dragover.prevent.stop="dragOverTarget = 'grid-{{ $block->id }}'; $event.dataTransfer.dropEffect = draggingBlockId ? 'move' : 'copy'"
         x-on:dragleave.stop="if (!$el.contains($event.relatedTarget)) dragOverTarget = null"
-        x-on:drop.prevent.stop="if (draggingBlockType) { $wire.addBlockToParent(draggingBlockType, '{{ $block->id }}'); draggingBlockType = null; dragOverTarget = null; }"
-        :class="{ 'ring-2 ring-accent ring-inset rounded-lg': draggingBlockType && dragOverTarget === 'grid-{{ $block->id }}' }"
+        x-on:drop.prevent.stop="
+            if (draggingBlockId) {
+                $wire.moveBlockToParent(draggingBlockId, '{{ $block->id }}');
+                draggingBlockId = null;
+            } else if (draggingBlockType) {
+                $wire.addBlockToParent(draggingBlockType, '{{ $block->id }}');
+                draggingBlockType = null;
+            }
+            dragOverTarget = null;
+        "
+        :class="{ 'ring-2 ring-accent ring-inset rounded-lg': (draggingBlockType || draggingBlockId) && dragOverTarget === 'grid-{{ $block->id }}' }"
     @endif
 >
     @forelse ($block->children as $child)
@@ -38,7 +47,7 @@
     @empty
         @if ($preview)
             @for ($i = 0; $i < $columns; $i++)
-                <div class="h-24 bg-zinc-100 dark:bg-zinc-700 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600 flex items-center justify-center">
+                <div class="h-24 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600 flex items-center justify-center">
                     <span class="text-zinc-400 text-sm">{{ __('pages.blocks.grid.column', ['num' => $i + 1]) }}</span>
                 </div>
             @endfor

@@ -290,6 +290,70 @@ class Builder extends Component
         $this->refreshPage();
     }
 
+    /**
+     * Move an existing block to become a child of a container block.
+     */
+    public function moveBlockToParent(string $blockId, string $parentId): void
+    {
+        $block = PageBlock::find($blockId);
+        $parent = PageBlock::find($parentId);
+
+        if (! $block || ! $parent || $block->page_id !== $this->page->id || $parent->page_id !== $this->page->id) {
+            return;
+        }
+
+        // Prevent moving a block into itself or its descendants
+        if ($blockId === $parentId || $this->isDescendantOf($parentId, $blockId)) {
+            return;
+        }
+
+        // Prevent moving a container block into a non-container
+        if (! $parent->type->supportsChildren()) {
+            return;
+        }
+
+        // Reorder siblings in the old location (close the gap)
+        PageBlock::query()
+            ->where('page_id', $this->page->id)
+            ->when($block->parent_id, fn ($q) => $q->where('parent_id', $block->parent_id))
+            ->when(! $block->parent_id, fn ($q) => $q->whereNull('parent_id'))
+            ->where('order', '>', $block->order)
+            ->decrement('order');
+
+        // Calculate new order in the parent
+        $maxOrder = PageBlock::query()
+            ->where('page_id', $this->page->id)
+            ->where('parent_id', $parentId)
+            ->max('order') ?? -1;
+
+        // Move the block
+        $block->update([
+            'parent_id' => $parentId,
+            'order' => $maxOrder + 1,
+            'column_span' => 1, // Default to 1 column when becoming a child
+        ]);
+
+        $this->page->touch();
+        $this->refreshPage();
+    }
+
+    /**
+     * Check if a block is a descendant of another block.
+     */
+    private function isDescendantOf(string $potentialDescendantId, string $ancestorId): bool
+    {
+        $block = PageBlock::find($potentialDescendantId);
+
+        while ($block && $block->parent_id) {
+            if ($block->parent_id === $ancestorId) {
+                return true;
+            }
+            $block = PageBlock::find($block->parent_id);
+        }
+
+        return false;
+    }
+
     public function applyTemplate(string $templateId): void
     {
         $template = PageTemplate::find($templateId);
