@@ -194,6 +194,31 @@
                 </flux:select>
             </flux:card>
 
+            {{-- Custom Form Assignment --}}
+            <flux:card>
+                <flux:heading size="base" class="mb-3">{{ __('forms.assign_form') }}</flux:heading>
+                <flux:select wire:change="assignForm($event.target.value)">
+                    <flux:select.option value="" :selected="!$listingRequest->custom_form_id">{{ __('forms.no_form') }}</flux:select.option>
+                    @foreach ($this->availableForms as $form)
+                        <flux:select.option value="{{ $form->id }}" :selected="$listingRequest->custom_form_id === $form->id">
+                            {{ $form->name }}
+                        </flux:select.option>
+                    @endforeach
+                </flux:select>
+                @if ($listingRequest->custom_form_id)
+                    <div class="mt-3 flex items-center gap-2">
+                        @if ($listingRequest->hasCustomForm())
+                            <flux:badge color="green" size="sm">{{ __('forms.completed') }}</flux:badge>
+                            <flux:text size="xs" class="text-gewo-grey-500">
+                                {{ $listingRequest->custom_form_completed_at->format('d.m.Y H:i') }}
+                            </flux:text>
+                        @else
+                            <flux:badge color="yellow" size="sm">{{ __('forms.pending') }}</flux:badge>
+                        @endif
+                    </div>
+                @endif
+            </flux:card>
+
             {{-- Timeline --}}
             <flux:card>
                 <flux:heading size="base" class="mb-3">{{ __('Timeline') }}</flux:heading>

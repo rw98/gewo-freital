@@ -172,5 +172,20 @@ return [
         'faq' => 'FAQ',
         'cta' => 'Call-to-Action',
         'pricing_table' => 'Preistabelle',
+        'custom_code' => 'Eigener Code',
+    ],
+
+    'form_field_type' => [
+        'text' => 'Text',
+        'email' => 'E-Mail',
+        'textarea' => 'Textbereich',
+        'select' => 'Auswahl (Dropdown)',
+        'radio' => 'Auswahl (Radio)',
+        'checkbox' => 'Checkbox',
+        'date' => 'Datum',
+        'file' => 'Datei',
+        'number' => 'Zahl',
+        'phone' => 'Telefon',
+        'info' => 'Infotext',
     ],
 ];

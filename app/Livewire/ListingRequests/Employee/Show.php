@@ -3,6 +3,7 @@
 namespace App\Livewire\ListingRequests\Employee;
 
 use App\Enums\ListingRequestStatus;
+use App\Models\Form;
 use App\Models\ListingRequest;
 use App\Models\RequestMessage;
 use App\Models\User;
@@ -70,6 +71,15 @@ class Show extends Component
         return User::query()->orderBy('first_name')->get();
     }
 
+    #[Computed]
+    public function availableForms()
+    {
+        return Form::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+    }
+
     public function openStatusModal(string $status): void
     {
         if ($status === ListingRequestStatus::Rejected->value) {
@@ -131,6 +141,18 @@ class Show extends Component
 
         $this->listingRequest->update([
             'assigned_to' => $userId ?: null,
+        ]);
+
+        $this->listingRequest->refresh();
+    }
+
+    public function assignForm(string $formId): void
+    {
+        Gate::authorize('update', $this->listingRequest);
+
+        $this->listingRequest->update([
+            'custom_form_id' => $formId ?: null,
+            'custom_form_completed_at' => null, // Reset completion when changing form
         ]);
 
         $this->listingRequest->refresh();

@@ -17,6 +17,7 @@ class ListingRequest extends Model
 
     protected $fillable = [
         'listing_id',
+        'custom_form_id',
         'assigned_to',
         'approved_by',
         'email',
@@ -48,6 +49,7 @@ class ListingRequest extends Model
         'has_rental_debt',
         'additional_notes',
         'self_disclosure_completed_at',
+        'custom_form_completed_at',
     ];
 
     /**
@@ -71,6 +73,7 @@ class ListingRequest extends Model
             'has_eviction_history' => 'boolean',
             'has_rental_debt' => 'boolean',
             'self_disclosure_completed_at' => 'datetime',
+            'custom_form_completed_at' => 'datetime',
         ];
     }
 
@@ -140,6 +143,22 @@ class ListingRequest extends Model
     public function tenants(): HasMany
     {
         return $this->hasMany(RequestTenant::class);
+    }
+
+    /**
+     * @return BelongsTo<Form, $this>
+     */
+    public function customForm(): BelongsTo
+    {
+        return $this->belongsTo(Form::class, 'custom_form_id');
+    }
+
+    /**
+     * @return HasMany<FormResponse, $this>
+     */
+    public function formResponses(): HasMany
+    {
+        return $this->hasMany(FormResponse::class);
     }
 
     /**
@@ -219,5 +238,25 @@ class ListingRequest extends Model
     public function hasSelfDisclosure(): bool
     {
         return $this->self_disclosure_completed_at !== null;
+    }
+
+    /**
+     * Check if custom form can be filled.
+     */
+    public function canFillCustomForm(): bool
+    {
+        return $this->custom_form_id !== null && in_array($this->status, [
+            ListingRequestStatus::AppointmentPending,
+            ListingRequestStatus::WaitingForInformation,
+            ListingRequestStatus::WaitingForApproval,
+        ], true);
+    }
+
+    /**
+     * Check if custom form has been completed.
+     */
+    public function hasCustomForm(): bool
+    {
+        return $this->custom_form_completed_at !== null;
     }
 }

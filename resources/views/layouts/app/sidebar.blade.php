@@ -29,6 +29,11 @@
                             {{ __('pages.nav.pages') }}
                         </flux:sidebar.item>
                     @endif
+                    @if (auth()->user()->isAdmin())
+                        <flux:sidebar.item icon="clipboard-document-list" :href="route('forms.index')" :current="request()->routeIs('forms.*')" wire:navigate>
+                            {{ __('forms.nav.forms') }}
+                        </flux:sidebar.item>
+                    @endif
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
