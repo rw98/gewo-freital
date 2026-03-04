@@ -15,12 +15,35 @@
                 <nav class="hidden lg:flex items-center gap-1">
                     <flux:navbar>
                         @foreach($navItems as $item)
-                            <flux:navbar.item
-                                :href="$item['href']"
-                                :icon="$item['icon'] ?? null"
-                            >
-                                {{ $item['label'] }}
-                            </flux:navbar.item>
+                            @if(isset($item['children']) && count($item['children']) > 0)
+                                {{-- Dropdown menu --}}
+                                <flux:dropdown>
+                                    <flux:navbar.item
+                                        :icon="$item['icon'] ?? null"
+                                        icon:trailing="chevron-down"
+                                    >
+                                        {{ $item['label'] }}
+                                    </flux:navbar.item>
+                                    <flux:navmenu>
+                                        @foreach($item['children'] as $child)
+                                            <flux:navmenu.item
+                                                :href="$child['href'] ?? '#'"
+                                                :icon="$child['icon'] ?? null"
+                                            >
+                                                {{ $child['label'] }}
+                                            </flux:navmenu.item>
+                                        @endforeach
+                                    </flux:navmenu>
+                                </flux:dropdown>
+                            @else
+                                {{-- Regular link --}}
+                                <flux:navbar.item
+                                    :href="$item['href'] ?? '#'"
+                                    :icon="$item['icon'] ?? null"
+                                >
+                                    {{ $item['label'] }}
+                                </flux:navbar.item>
+                            @endif
                         @endforeach
                     </flux:navbar>
                 </nav>
@@ -66,12 +89,26 @@
         <div class="p-4">
             <flux:navlist>
                 @foreach($navItems as $item)
-                    <flux:navlist.item
-                        :href="$item['href']"
-                        :icon="$item['icon'] ?? null"
-                    >
-                        {{ $item['label'] }}
-                    </flux:navlist.item>
+                    @if(isset($item['children']) && count($item['children']) > 0)
+                        {{-- Expandable group for mobile --}}
+                        <flux:navlist.group :heading="$item['label']" expandable>
+                            @foreach($item['children'] as $child)
+                                <flux:navlist.item
+                                    :href="$child['href'] ?? '#'"
+                                    :icon="$child['icon'] ?? null"
+                                >
+                                    {{ $child['label'] }}
+                                </flux:navlist.item>
+                            @endforeach
+                        </flux:navlist.group>
+                    @else
+                        <flux:navlist.item
+                            :href="$item['href'] ?? '#'"
+                            :icon="$item['icon'] ?? null"
+                        >
+                            {{ $item['label'] }}
+                        </flux:navlist.item>
+                    @endif
                 @endforeach
             </flux:navlist>
             <div class="mt-6 pt-6 border-t border-gewo-grey-200">

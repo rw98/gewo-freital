@@ -120,6 +120,211 @@ describe('page creation', function () {
         expect($page->allBlocks->first()->type)->toBe(BlockType::Heading);
     });
 
+    it('creates a page from imported blocks', function () {
+        $user = User::factory()->create(['page_role' => PageEditorRole::Editor]);
+
+        $importedBlocks = [
+            ['type' => 'heading', 'content' => ['text' => 'Imported Title', 'level' => 1], 'column_span' => 12],
+            ['type' => 'paragraph', 'content' => ['text' => 'Imported content'], 'column_span' => 12],
+        ];
+
+        Livewire::actingAs($user)
+            ->test(Create::class)
+            ->set('title', 'Imported Page')
+            ->set('slug', 'imported-page')
+            ->set('layout', 'default')
+            ->set('importedBlocks', $importedBlocks)
+            ->call('create')
+            ->assertRedirect();
+
+        $page = Page::where('slug', 'imported-page')->first();
+        expect($page->allBlocks)->toHaveCount(2);
+        expect($page->allBlocks->first()->type)->toBe(BlockType::Heading);
+        expect($page->allBlocks->first()->getContent('text'))->toBe('Imported Title');
+    });
+
+    it('prioritizes imported blocks over template', function () {
+        $user = User::factory()->create(['page_role' => PageEditorRole::Editor]);
+        $template = PageTemplate::factory()->create([
+            'structure' => [
+                ['type' => BlockType::Hero->value, 'content' => BlockType::Hero->defaultContent()],
+            ],
+        ]);
+
+        $importedBlocks = [
+            ['type' => 'heading', 'content' => ['text' => 'Imported', 'level' => 1], 'column_span' => 12],
+        ];
+
+        Livewire::actingAs($user)
+            ->test(Create::class)
+            ->set('title', 'Priority Test')
+            ->set('slug', 'priority-test')
+            ->set('layout', 'default')
+            ->set('templateId', $template->id)
+            ->set('importedBlocks', $importedBlocks)
+            ->call('create')
+            ->assertRedirect();
+
+        $page = Page::where('slug', 'priority-test')->first();
+        expect($page->allBlocks)->toHaveCount(1);
+        expect($page->allBlocks->first()->type)->toBe(BlockType::Heading);
+    });
+
+    it('creates a page with imported grid and nested children', function () {
+        $user = User::factory()->create(['page_role' => PageEditorRole::Editor]);
+
+        $importedBlocks = [
+            ['type' => 'heading', 'content' => ['text' => 'Features', 'level' => 2], 'column_span' => 12],
+            [
+                'type' => 'grid',
+                'content' => ['columns' => 3, 'gap' => 4],
+                'column_span' => 12,
+                'children' => [
+                    ['type' => 'card', 'content' => ['title' => 'Card 1', 'content' => 'Description 1', 'image' => ''], 'column_span' => 1],
+                    ['type' => 'card', 'content' => ['title' => 'Card 2', 'content' => 'Description 2', 'image' => ''], 'column_span' => 1],
+                    ['type' => 'card', 'content' => ['title' => 'Card 3', 'content' => 'Description 3', 'image' => ''], 'column_span' => 1],
+                ],
+            ],
+        ];
+
+        Livewire::actingAs($user)
+            ->test(Create::class)
+            ->set('title', 'Grid Page')
+            ->set('slug', 'grid-page')
+            ->set('layout', 'default')
+            ->set('importedBlocks', $importedBlocks)
+            ->call('create')
+            ->assertRedirect();
+
+        $page = Page::where('slug', 'grid-page')->first();
+
+        // Should have heading + grid + 3 children = 5 total blocks
+        expect($page->allBlocks)->toHaveCount(5);
+
+        // Check top-level blocks (heading and grid)
+        $topLevelBlocks = $page->blocks()->whereNull('parent_id')->orderBy('order')->get();
+        expect($topLevelBlocks)->toHaveCount(2);
+        expect($topLevelBlocks[0]->type)->toBe(BlockType::Heading);
+        expect($topLevelBlocks[1]->type)->toBe(BlockType::Grid);
+
+        // Check grid content
+        $gridBlock = $topLevelBlocks[1];
+        expect($gridBlock->getContent('columns'))->toBe(3);
+        expect($gridBlock->getContent('gap'))->toBe(4);
+
+        // Check children
+        expect($gridBlock->children)->toHaveCount(3);
+        expect($gridBlock->children[0]->type)->toBe(BlockType::Card);
+        expect($gridBlock->children[0]->getContent('title'))->toBe('Card 1');
+        expect($gridBlock->children[1]->getContent('title'))->toBe('Card 2');
+        expect($gridBlock->children[2]->getContent('title'))->toBe('Card 3');
+    });
+
+    it('creates deeply nested grids with correct parent relationships', function () {
+        $user = User::factory()->create(['page_role' => PageEditorRole::Editor]);
+
+        $importedBlocks = [
+            [
+                'type' => 'grid',
+                'content' => ['columns' => 2, 'gap' => 4],
+                'column_span' => 12,
+                'children' => [
+                    [
+                        'type' => 'grid',
+                        'content' => ['columns' => 2, 'gap' => 2],
+                        'column_span' => 1,
+                        'children' => [
+                            ['type' => 'card', 'content' => ['title' => 'Nested Card 1', 'content' => '', 'image' => ''], 'column_span' => 1],
+                            ['type' => 'card', 'content' => ['title' => 'Nested Card 2', 'content' => '', 'image' => ''], 'column_span' => 1],
+                        ],
+                    ],
+                    ['type' => 'paragraph', 'content' => ['text' => 'Right side text'], 'column_span' => 1],
+                ],
+            ],
+        ];
+
+        Livewire::actingAs($user)
+            ->test(Create::class)
+            ->set('title', 'Nested Grid Page')
+            ->set('slug', 'nested-grid-page')
+            ->set('layout', 'default')
+            ->set('importedBlocks', $importedBlocks)
+            ->call('create')
+            ->assertRedirect();
+
+        $page = Page::where('slug', 'nested-grid-page')->first();
+
+        // Should have: outer grid + inner grid + paragraph + 2 nested cards = 5 blocks
+        expect($page->allBlocks)->toHaveCount(5);
+
+        // Top-level: just the outer grid
+        $topLevel = $page->blocks()->whereNull('parent_id')->get();
+        expect($topLevel)->toHaveCount(1);
+        expect($topLevel[0]->type)->toBe(BlockType::Grid);
+
+        $outerGrid = $topLevel[0];
+        expect($outerGrid->children)->toHaveCount(2);
+
+        // First child is inner grid
+        $innerGrid = $outerGrid->children[0];
+        expect($innerGrid->type)->toBe(BlockType::Grid);
+        expect($innerGrid->parent_id)->toBe($outerGrid->id);
+        expect($innerGrid->children)->toHaveCount(2);
+
+        // Inner grid's children
+        expect($innerGrid->children[0]->type)->toBe(BlockType::Card);
+        expect($innerGrid->children[0]->parent_id)->toBe($innerGrid->id);
+        expect($innerGrid->children[0]->getContent('title'))->toBe('Nested Card 1');
+
+        // Second child of outer grid is paragraph
+        $paragraph = $outerGrid->children[1];
+        expect($paragraph->type)->toBe(BlockType::Paragraph);
+        expect($paragraph->parent_id)->toBe($outerGrid->id);
+    });
+
+    it('creates columns layout with image and text side by side', function () {
+        $user = User::factory()->create(['page_role' => PageEditorRole::Editor]);
+
+        $importedBlocks = [
+            ['type' => 'heading', 'content' => ['text' => 'About Us', 'level' => 2], 'column_span' => 12],
+            [
+                'type' => 'columns',
+                'content' => ['layout' => '1/2-1/2'],
+                'column_span' => 12,
+                'children' => [
+                    ['type' => 'image', 'content' => ['src' => 'https://example.com/team.jpg', 'alt' => 'Our team', 'caption' => ''], 'column_span' => 1],
+                    ['type' => 'rich_text', 'content' => ['html' => '<p>We are a <strong>great</strong> team.</p>'], 'column_span' => 1],
+                ],
+            ],
+        ];
+
+        Livewire::actingAs($user)
+            ->test(Create::class)
+            ->set('title', 'Columns Page')
+            ->set('slug', 'columns-page')
+            ->set('layout', 'default')
+            ->set('importedBlocks', $importedBlocks)
+            ->call('create')
+            ->assertRedirect();
+
+        $page = Page::where('slug', 'columns-page')->first();
+
+        // heading + columns + 2 children = 4 blocks
+        expect($page->allBlocks)->toHaveCount(4);
+
+        $topLevel = $page->blocks()->whereNull('parent_id')->orderBy('order')->get();
+        expect($topLevel)->toHaveCount(2);
+        expect($topLevel[0]->type)->toBe(BlockType::Heading);
+        expect($topLevel[1]->type)->toBe(BlockType::Columns);
+
+        $columnsBlock = $topLevel[1];
+        expect($columnsBlock->getContent('layout'))->toBe('1/2-1/2');
+        expect($columnsBlock->children)->toHaveCount(2);
+        expect($columnsBlock->children[0]->type)->toBe(BlockType::Image);
+        expect($columnsBlock->children[0]->getContent('src'))->toBe('https://example.com/team.jpg');
+        expect($columnsBlock->children[1]->type)->toBe(BlockType::RichText);
+    });
+
     it('validates unique slug', function () {
         $user = User::factory()->create(['page_role' => PageEditorRole::Editor]);
         Page::factory()->create(['slug' => 'existing-page']);
@@ -199,6 +404,80 @@ describe('page builder', function () {
 
         expect($block2->refresh()->order)->toBe(0);
         expect($block1->refresh()->order)->toBe(1);
+    });
+
+    it('can move a block to become a child of a grid', function () {
+        $user = User::factory()->create(['page_role' => PageEditorRole::Editor]);
+        $page = Page::factory()->forUser($user)->create();
+
+        // Create a grid and a standalone paragraph
+        $grid = PageBlock::factory()->create([
+            'page_id' => $page->id,
+            'type' => BlockType::Grid,
+            'content' => ['columns' => 3, 'gap' => 4],
+            'order' => 0,
+        ]);
+        $paragraph = PageBlock::factory()->paragraph()->create([
+            'page_id' => $page->id,
+            'order' => 1,
+        ]);
+
+        // Move paragraph into grid
+        Livewire::actingAs($user)
+            ->test(Builder::class, ['page' => $page])
+            ->call('moveBlockToParent', $paragraph->id, $grid->id);
+
+        $paragraph->refresh();
+        expect($paragraph->parent_id)->toBe($grid->id);
+        expect($paragraph->column_span)->toBe(1);
+
+        // Grid should now have 1 child
+        $grid->refresh();
+        expect($grid->children)->toHaveCount(1);
+    });
+
+    it('prevents moving a block into a non-container block', function () {
+        $user = User::factory()->create(['page_role' => PageEditorRole::Editor]);
+        $page = Page::factory()->forUser($user)->create();
+
+        $heading = PageBlock::factory()->heading()->create([
+            'page_id' => $page->id,
+            'order' => 0,
+        ]);
+        $paragraph = PageBlock::factory()->paragraph()->create([
+            'page_id' => $page->id,
+            'order' => 1,
+        ]);
+
+        // Try to move paragraph into heading (which doesn't support children)
+        Livewire::actingAs($user)
+            ->test(Builder::class, ['page' => $page])
+            ->call('moveBlockToParent', $paragraph->id, $heading->id);
+
+        // Paragraph should remain top-level
+        $paragraph->refresh();
+        expect($paragraph->parent_id)->toBeNull();
+    });
+
+    it('prevents moving a container into itself', function () {
+        $user = User::factory()->create(['page_role' => PageEditorRole::Editor]);
+        $page = Page::factory()->forUser($user)->create();
+
+        $grid = PageBlock::factory()->create([
+            'page_id' => $page->id,
+            'type' => BlockType::Grid,
+            'content' => ['columns' => 2, 'gap' => 4],
+            'order' => 0,
+        ]);
+
+        // Try to move grid into itself
+        Livewire::actingAs($user)
+            ->test(Builder::class, ['page' => $page])
+            ->call('moveBlockToParent', $grid->id, $grid->id);
+
+        // Grid should remain top-level
+        $grid->refresh();
+        expect($grid->parent_id)->toBeNull();
     });
 
     it('can publish a page', function () {
@@ -474,5 +753,65 @@ describe('models', function () {
 
         expect($template->structure)->toBeArray();
         expect($template->structure[0]['type'])->toBe('heading');
+    });
+});
+
+// Block settings tests
+describe('block settings', function () {
+    it('block has default settings including max_width', function () {
+        $page = Page::factory()->create();
+        $block = PageBlock::factory()->heading()->create(['page_id' => $page->id]);
+
+        expect($block->settings)->toHaveKey('max_width');
+        expect($block->getSetting('max_width'))->toBe('full');
+    });
+
+    it('can update block max_width setting', function () {
+        $user = User::factory()->create(['page_role' => PageEditorRole::Editor]);
+        $page = Page::factory()->forUser($user)->create();
+        $block = PageBlock::factory()->heading()->create(['page_id' => $page->id]);
+
+        Livewire::actingAs($user)
+            ->test(Builder::class, ['page' => $page])
+            ->call('selectBlock', $block->id)
+            ->set('editingSettings.max_width', 'prose')
+            ->assertSet('editingSettings.max_width', 'prose');
+
+        $block->refresh();
+        expect($block->getSetting('max_width'))->toBe('prose');
+    });
+
+    it('block renderer applies max_width classes', function () {
+        $page = Page::factory()->create([
+            'status' => PageStatus::Published,
+            'published_at' => now(),
+        ]);
+        $block = PageBlock::factory()->heading()->create([
+            'page_id' => $page->id,
+            'content' => ['text' => 'Test Heading', 'level' => 2],
+            'settings' => ['max_width' => 'prose', 'padding' => 'none', 'margin' => 'none', 'background' => 'transparent', 'text_align' => 'left'],
+        ]);
+
+        $view = view('components.pages.block-renderer', ['block' => $block, 'preview' => false])->render();
+
+        expect($view)->toContain('max-w-prose');
+        expect($view)->toContain('mx-auto');
+    });
+
+    it('block renderer does not apply mx-auto for full width', function () {
+        $page = Page::factory()->create([
+            'status' => PageStatus::Published,
+            'published_at' => now(),
+        ]);
+        $block = PageBlock::factory()->heading()->create([
+            'page_id' => $page->id,
+            'content' => ['text' => 'Test Heading', 'level' => 2],
+            'settings' => ['max_width' => 'full', 'padding' => 'none', 'margin' => 'none', 'background' => 'transparent', 'text_align' => 'left'],
+        ]);
+
+        $view = view('components.pages.block-renderer', ['block' => $block, 'preview' => false])->render();
+
+        expect($view)->not->toContain('max-w-');
+        expect($view)->not->toContain('mx-auto');
     });
 });

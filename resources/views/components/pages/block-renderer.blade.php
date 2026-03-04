@@ -27,8 +27,25 @@
         'primary' => 'bg-accent/10',
         default => '',
     };
+
+    $maxWidthClasses = match ($block->getSetting('max_width', 'full')) {
+        'xs' => 'max-w-xs',
+        'sm' => 'max-w-sm',
+        'md' => 'max-w-md',
+        'lg' => 'max-w-lg',
+        'xl' => 'max-w-xl',
+        '2xl' => 'max-w-2xl',
+        '3xl' => 'max-w-3xl',
+        '4xl' => 'max-w-4xl',
+        '5xl' => 'max-w-5xl',
+        'prose' => 'max-w-prose',
+        default => '',
+    };
+
+    // Center the block if max_width is set and not full
+    $maxWidthContainer = $block->getSetting('max_width', 'full') !== 'full' ? 'mx-auto' : '';
 @endphp
 
-<div class="{{ $paddingClasses }} {{ $marginClasses }} {{ $textAlignClasses }} {{ $backgroundClasses }}">
+<div class="{{ $paddingClasses }} {{ $marginClasses }} {{ $textAlignClasses }} {{ $backgroundClasses }} {{ $maxWidthClasses }} {{ $maxWidthContainer }}">
     @include('components.pages.blocks.'.$block->type->value, ['block' => $block, 'preview' => $preview])
 </div>

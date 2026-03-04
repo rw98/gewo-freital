@@ -1,6 +1,7 @@
 <div class="min-h-screen bg-zinc-100 dark:bg-zinc-900" x-data="{
     sidebarOpen: true,
     draggingBlockType: null,
+    draggingBlockId: null,
     dragOverTarget: null
 }">
     {{-- Toolbar --}}
@@ -113,7 +114,7 @@
         <main class="flex-1 p-8 overflow-y-auto h-[calc(100vh-3.5rem)]">
             <div
                 class="mx-auto bg-white dark:bg-zinc-800 shadow-lg rounded-lg min-h-[600px] transition-all duration-300"
-                style="max-width: {{ $previewMode === 'desktop' ? '896px' : ($previewMode === 'tablet' ? '768px' : '375px') }}"
+                style="max-width: {{ $previewMode === 'desktop' ? '1152px' : ($previewMode === 'tablet' ? '768px' : '375px') }}"
             >
                 @if ($page->blocks->isEmpty())
                     {{-- Empty state --}}
@@ -140,7 +141,6 @@
                     {{-- Blocks --}}
                     <div
                         class="p-4 sm:p-6 transition-colors"
-                        wire:sort="handleSort"
                         x-on:dragover.prevent="if (!$event.target.closest('[data-drop-indicator]') && !$event.target.closest('[data-grid-drop]')) { dragOverTarget = 'canvas'; $event.dataTransfer.dropEffect = 'copy'; }"
                         x-on:dragleave.self="dragOverTarget = null"
                         x-on:drop.prevent="if (draggingBlockType && dragOverTarget === 'canvas') { $wire.addBlock(draggingBlockType); draggingBlockType = null; dragOverTarget = null; }"
@@ -158,7 +158,7 @@
                             :class="{ 'opacity-100': dragOverTarget === 'before-first' }"
                         ></div>
 
-                        <div class="grid grid-cols-12 gap-4">
+                        <div class="grid grid-cols-12 gap-4" wire:sort="handleSort">
                             @foreach ($page->blocks as $block)
                                 @php
                                     $span = $block->column_span;
@@ -177,8 +177,17 @@
                                 >
                                     {{-- Block toolbar --}}
                                     <div class="absolute -top-3 left-4 hidden group-hover:flex items-center gap-1 bg-white dark:bg-zinc-700 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-600 px-1 py-0.5 z-10">
-                                        <div wire:sort:handle class="cursor-move px-1 text-zinc-400 hover:text-zinc-600">
+                                        <div wire:sort:handle class="cursor-move px-1 text-zinc-400 hover:text-zinc-600" title="{{ __('pages.builder.drag_to_reorder') }}">
                                             <flux:icon name="bars-3" class="size-4" />
+                                        </div>
+                                        <div
+                                            draggable="true"
+                                            x-on:dragstart="draggingBlockId = '{{ $block->id }}'; $event.dataTransfer.effectAllowed = 'move'; $event.dataTransfer.setData('text/plain', '{{ $block->id }}')"
+                                            x-on:dragend="draggingBlockId = null; dragOverTarget = null"
+                                            class="cursor-grab px-1 text-zinc-400 hover:text-accent"
+                                            title="{{ __('pages.builder.drag_to_container') }}"
+                                        >
+                                            <flux:icon name="arrow-right-circle" class="size-4" />
                                         </div>
                                         <flux:text size="xs" class="text-zinc-500 px-1">{{ $block->type->label() }}</flux:text>
                                         <flux:separator vertical class="h-4" />
@@ -288,6 +297,25 @@
                                         <flux:select.option value="{{ $i }}">{{ $i }}/12</flux:select.option>
                                     @endfor
                                 </flux:select>
+                            </flux:field>
+
+                            {{-- Max width --}}
+                            <flux:field>
+                                <flux:label>{{ __('pages.builder.max_width') }}</flux:label>
+                                <flux:select wire:model.live="editingSettings.max_width">
+                                    <flux:select.option value="full">{{ __('pages.builder.max_width_full') }}</flux:select.option>
+                                    <flux:select.option value="prose">{{ __('pages.builder.max_width_prose') }}</flux:select.option>
+                                    <flux:select.option value="xs">{{ __('pages.builder.max_width_xs') }}</flux:select.option>
+                                    <flux:select.option value="sm">{{ __('pages.builder.max_width_sm') }}</flux:select.option>
+                                    <flux:select.option value="md">{{ __('pages.builder.max_width_md') }}</flux:select.option>
+                                    <flux:select.option value="lg">{{ __('pages.builder.max_width_lg') }}</flux:select.option>
+                                    <flux:select.option value="xl">{{ __('pages.builder.max_width_xl') }}</flux:select.option>
+                                    <flux:select.option value="2xl">{{ __('pages.builder.max_width_2xl') }}</flux:select.option>
+                                    <flux:select.option value="3xl">{{ __('pages.builder.max_width_3xl') }}</flux:select.option>
+                                    <flux:select.option value="4xl">{{ __('pages.builder.max_width_4xl') }}</flux:select.option>
+                                    <flux:select.option value="5xl">{{ __('pages.builder.max_width_5xl') }}</flux:select.option>
+                                </flux:select>
+                                <flux:description>{{ __('pages.builder.max_width_description') }}</flux:description>
                             </flux:field>
 
                             {{-- Padding --}}

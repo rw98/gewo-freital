@@ -1,6 +1,8 @@
 <?php
 
 use App\Livewire\Settings\Appearance;
+use App\Livewire\Settings\Branding;
+use App\Livewire\Settings\Navbar;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\TwoFactor;
@@ -16,6 +18,8 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('settings/password', Password::class)->name('user-password.edit');
     Route::livewire('settings/appearance', Appearance::class)->name('appearance.edit');
+    Route::livewire('settings/navbar', Navbar::class)->name('settings.navbar');
+    Route::livewire('settings/branding', Branding::class)->name('settings.branding');
 
     Route::livewire('settings/two-factor', TwoFactor::class)
         ->middleware(

@@ -17,6 +17,7 @@ enum BlockType: string
     // Layout
     case Grid = 'grid';
     case Columns = 'columns';
+    case Stack = 'stack';
     case Spacer = 'spacer';
     case Divider = 'divider';
 
@@ -32,6 +33,7 @@ enum BlockType: string
     case Button = 'button';
     case ButtonGroup = 'button_group';
     case ContactForm = 'contact_form';
+    case ApartmentSearch = 'apartment_search';
 
     // Pre-built Sections
     case Hero = 'hero';
@@ -57,6 +59,7 @@ enum BlockType: string
             self::Video => 'play-circle',
             self::Grid => 'squares-plus',
             self::Columns => 'view-columns',
+            self::Stack => 'bars-3',
             self::Spacer => 'arrows-up-down',
             self::Divider => 'minus',
             self::Card => 'rectangle-stack',
@@ -68,6 +71,7 @@ enum BlockType: string
             self::Button => 'cursor-arrow-rays',
             self::ButtonGroup => 'squares-2x2',
             self::ContactForm => 'envelope',
+            self::ApartmentSearch => 'home-modern',
             self::Hero => 'sparkles',
             self::FeatureGrid => 'view-columns',
             self::Testimonials => 'chat-bubble-bottom-center-text',
@@ -82,9 +86,9 @@ enum BlockType: string
         return match ($this) {
             self::Heading, self::Paragraph, self::RichText => 'text',
             self::Image, self::ImageGallery, self::Video => 'media',
-            self::Grid, self::Columns, self::Spacer, self::Divider => 'layout',
+            self::Grid, self::Columns, self::Stack, self::Spacer, self::Divider => 'layout',
             self::Card, self::Callout, self::ListBlock, self::Table, self::Accordion, self::Tabs => 'content',
-            self::Button, self::ButtonGroup, self::ContactForm => 'interactive',
+            self::Button, self::ButtonGroup, self::ContactForm, self::ApartmentSearch => 'interactive',
             self::Hero, self::FeatureGrid, self::Testimonials, self::Faq, self::Cta, self::PricingTable => 'sections',
         };
     }
@@ -106,7 +110,7 @@ enum BlockType: string
     public function supportsChildren(): bool
     {
         return match ($this) {
-            self::Grid, self::Columns, self::Accordion, self::Tabs => true,
+            self::Grid, self::Columns, self::Stack, self::Accordion, self::Tabs => true,
             default => false,
         };
     }
@@ -125,6 +129,7 @@ enum BlockType: string
             self::Video => ['url' => '', 'provider' => 'youtube'],
             self::Grid => ['columns' => 3, 'gap' => 4],
             self::Columns => ['layout' => '1/2-1/2'],
+            self::Stack => ['gap' => 4],
             self::Spacer => ['height' => 'md'],
             self::Divider => ['style' => 'solid'],
             self::Card => ['title' => '', 'content' => '', 'image' => ''],
@@ -136,6 +141,7 @@ enum BlockType: string
             self::Button => ['text' => '', 'url' => '', 'variant' => 'primary', 'size' => 'base'],
             self::ButtonGroup => ['buttons' => []],
             self::ContactForm => ['recipient_email' => '', 'success_message' => ''],
+            self::ApartmentSearch => ['title' => '', 'description' => '', 'show_featured' => true, 'featured_count' => 3],
             self::Hero => ['heading' => '', 'subheading' => '', 'image' => '', 'cta_text' => '', 'cta_url' => ''],
             self::FeatureGrid => ['features' => []],
             self::Testimonials => ['testimonials' => []],
@@ -155,6 +161,7 @@ enum BlockType: string
             'margin' => 'none',
             'background' => 'transparent',
             'text_align' => 'left',
+            'max_width' => 'full',
         ];
     }
 }
